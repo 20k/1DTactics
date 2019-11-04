@@ -50,6 +50,7 @@
 			<Add option="-lglew32" />
 			<Add option="-lsfml-system" />
 			<Add option="-lsfml-graphics" />
+			<Add option="-lsfml-window" />
 			<Add directory="deps" />
 		</Linker>
 		<Unit filename="deps/imgui/examples/imgui_impl_glfw.cpp" />
@@ -65,6 +66,7 @@
 		<Unit filename="deps/imgui/misc/freetype/imgui_freetype.h" />
 		<Unit filename="design.txt" />
 		<Unit filename="main.cpp" />
+		<Unit filename="renderables.hpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <vec/vec.hpp>
 #include <SFML/Graphics.hpp>
+#include "renderables.hpp"
 
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <glfw/glfw3native.h>
@@ -17,7 +18,6 @@ void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
-
 
 int main(int argc, char* argv[])
 {
@@ -122,8 +122,6 @@ int main(int argc, char* argv[])
     #endif // GLFW_EXPOSE_NATIVE_WAYLAND
 
     sf::ContextSettings sett(24, 8, 0, 3, 0, 0, false);
-
-    /*sf::RenderWindow win(native_handle, sett);*/
 
     sf::RenderWindow win(native_handle, sett);
 
