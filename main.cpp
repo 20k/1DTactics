@@ -127,6 +127,8 @@ int main(int argc, char* argv[])
 
     sf::RenderWindow win(native_handle, sett);
 
+    glfwMakeContextCurrent(window);
+
     bool running = true;
 
     while(running)
@@ -148,19 +150,31 @@ int main(int argc, char* argv[])
 
         auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - screen_absolute_pos;
 
+        {
+            win.setActive(true);
+
+            win.clear();
+
+            sf::RectangleShape shape;
+            shape.setFillColor(sf::Color(255, 255, 255, 255));
+            shape.setPosition(100, 100);
+            shape.setSize({10, 10});
+
+            win.draw(shape);
+        }
+
         ImGui::Begin("Test");
 
         ImGui::End();
 
         ImGui::Render();
 
+        glfwMakeContextCurrent(window);
+
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
 
         glViewport(0, 0, display_w, display_h);
-        glClearColor(0, 0, 0, 0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        //glDrawBuffer(GL_BACK);
         glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -172,7 +186,12 @@ int main(int argc, char* argv[])
             glfwMakeContextCurrent(backup_current_context);
         }
 
-        glfwSwapBuffers(window);
+        win.setActive(true);
+
+        win.display();
+        //glfwSwapBuffers(window);
+
+        glfwMakeContextCurrent(window);
     }
 
     return 0;
