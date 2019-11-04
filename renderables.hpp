@@ -39,7 +39,8 @@ namespace tiles
         DOOR_CLOSED,
         DOOR_OPEN,
         GRAVE,
-        WOOD_FENCE,
+        WOOD_FENCE_FULL,
+        WOOD_FENCE_HALF,
         TILING_WALL,
         CULTIVATION,
     };
@@ -57,6 +58,7 @@ std::map<tiles::types, std::vector<vec2i>>& get_locations()
 
     using namespace tiles;
 
+    ///consider adding skull and crossbones to dirt
     add_to(ret[DIRT], {0, 0});
     add_to(ret[DIRT], {1, 0});
     add_to(ret[DIRT], {2, 0});
@@ -99,6 +101,74 @@ std::map<tiles::types, std::vector<vec2i>>& get_locations()
     add_to(ret[CIVILIAN], {29, 4});
     add_to(ret[CIVILIAN], {30, 4});
     ///top left scorpion is 23, 5
+
+    add_to(ret[SOLDIER], {25, 4});
+    add_to(ret[SOLDIER], {29, 9});
+
+    add_to(ret[GROUND_BUG], {27, 5});
+    add_to(ret[GROUND_BUG], {28, 5});
+    add_to(ret[GROUND_BUG], {29, 5});
+    add_to(ret[SMALL_PINCHY], {30, 5});
+    add_to(ret[FLYING_BUG], {25, 5});
+    add_to(ret[ARMOURED_BUG], {26, 5});
+    add_to(ret[SCORPION], {23, 5});
+
+    add_to(ret[LAND_ANIMAL], {24, 7});
+    add_to(ret[LAND_ANIMAL], {25, 7});
+    add_to(ret[LAND_ANIMAL], {26, 7});
+    add_to(ret[LAND_ANIMAL], {27, 7});
+    //add_to(ret[LAND_ANIMAL], {28, 7});
+    add_to(ret[LAND_ANIMAL], {29, 7});
+    add_to(ret[LAND_ANIMAL], {30, 7});
+    add_to(ret[LAND_ANIMAL], {25, 8}); //bat
+
+    add_to(ret[SEA_ANIMAL], {24, 8});
+    add_to(ret[SEA_ANIMAL], {27, 8});
+    add_to(ret[CROCODILE], {28, 8});
+
+    add_to(ret[FACE_MALE], {23, 10});
+    add_to(ret[FACE_MALE], {25, 10});
+    add_to(ret[FACE_MALE], {26, 10});
+    add_to(ret[FACE_MALE], {27, 10});
+    add_to(ret[FACE_MALE], {28, 10});
+
+    add_to(ret[FACE_WOMAN], {24, 10});
+    add_to(ret[FACE_WOMAN], {29, 10});
+    add_to(ret[FACE_WOMAN], {30, 10});
+
+    add_to(ret[THIN_DOOR_CLOSED], {3, 4});
+    add_to(ret[THIN_DOOR_OPEN], {4, 4});
+
+    add_to(ret[DOOR_CLOSED], {3, 3});
+    add_to(ret[THIN_DOOR_OPEN], {4, 3});
+
+    add_to(ret[GRAVE], {0, 14});
+    add_to(ret[GRAVE], {1, 14});
+    add_to(ret[GRAVE], {2, 14});
+
+    add_to(ret[WOOD_FENCE_FULL], {1, 3});
+    add_to(ret[WOOD_FENCE_FULL], {2, 3});
+    add_to(ret[WOOD_FENCE_HALF], {0, 3});
+
+    add_to(ret[TILING_WALL], {16, 19});
+    add_to(ret[TILING_WALL], {17, 19});
+    add_to(ret[TILING_WALL], {18, 19});
+
+    add_to(ret[TILING_WALL], {16, 20});
+    add_to(ret[TILING_WALL], {17, 20});
+    add_to(ret[TILING_WALL], {18, 20});
+
+    add_to(ret[TILING_WALL], {16, 21});
+    add_to(ret[TILING_WALL], {17, 21});
+    add_to(ret[TILING_WALL], {18, 21});
+
+    add_to(ret[CULTIVATION], {13, 6});
+    add_to(ret[CULTIVATION], {14, 6});
+    add_to(ret[CULTIVATION], {15, 6});
+    add_to(ret[CULTIVATION], {16, 6});
+    add_to(ret[CULTIVATION], {17, 6});
+
+    return ret;
 }
 
 struct entity_manager
