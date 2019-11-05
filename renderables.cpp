@@ -360,7 +360,7 @@ void playspace_manager::draw(sf::RenderTarget& win)
     {
         for(int x=x_start; x < level_size.x() && x < x_end; x++)
         {
-            for(const tile_object& tobj : all_tiles[y * level_size.x() + x])
+            for(const tile_object& tobj : all_tiles.at(y * level_size.x() + x))
             {
                 const renderable_object& renderable = tobj.obj;
 
@@ -437,7 +437,9 @@ entity_object& playspace_manager::add_entity(vec2i where, tiles::types type, ai_
     eobj.next_pos = where;
     eobj.disposition = ai_type;
 
-    entities.push_back(eobj);
+    eobj.my_id = entity_gid++;
 
-    return entities.back();
+    entities[eobj.my_id] = eobj;
+
+    return entities[eobj.my_id];
 }

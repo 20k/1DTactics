@@ -90,20 +90,29 @@ struct entity_object
 {
     vec2i tilemap_pos;
     vec2i next_pos;
+    uint64_t my_id = -1;
 
     ai_disposition::types disposition = ai_disposition::NONE;
+};
+
+struct ai_squad
+{
+    std::vector<entity_object> entities;
 };
 
 struct playspace_manager
 {
     sf::Texture spritemap;
 
+    static inline uint64_t entity_gid = 0;
+
     vec2f camera_pos;
     float zoom = 1;
 
     vec2i level_size = {0,0};
     std::vector<std::vector<tile_object>> all_tiles;
-    std::vector<entity_object> entities;
+    std::map<uint64_t, entity_object> entities;
+
     level_info::types level_type = level_info::GRASS;
 
     void create_level(vec2i dim, level_info::types type);
