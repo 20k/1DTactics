@@ -203,6 +203,16 @@ vec2i get_tile_of(tiles::types type)
     return which[iwhich];
 }
 
+vec4f special_colour_randomisation(vec4f rcol, vec2i tile_id, tiles::types type)
+{
+    static std::minstd_rand rng;
+
+    if(tile_id.x() == 0 && tile_id.y() == 0)
+        return clamp(rand_det_s(rng, 0.7, 1.3) * rcol, 0, 1);
+
+    return rcol;
+}
+
 void playspace_manager::create_level(vec2i dim, level_info::types type)
 {
     spritemap.loadFromFile("./assets/colored.png");
@@ -221,6 +231,8 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
             renderable_object robj;
             robj.tile_id = get_tile_of(tiles::GRASS);
             robj.lin_colour = get_colour_of(tiles::GRASS, type);
+
+            robj.lin_colour = special_colour_randomisation(robj.lin_colour, robj.tile_id, tiles::GRASS);
 
             tile_object obj;
             obj.obj = robj;
@@ -265,17 +277,25 @@ void playspace_manager::draw(sf::RenderWindow& win)
 
             vec2f tex_size = {spritemap.getSize().x, spritemap.getSize().y};
 
-            vec4f col_srgb = lin_to_srgb(renderable.lin_colour);
+            float shade = 0.05;
 
-            sf::Color sfcol(col_srgb.x()*255.f, col_srgb.y()*255.f, col_srgb.z()*255.f, col_srgb.w()*255.f);
+            vec4f tl_col = lin_to_srgb(clamp(renderable.lin_colour*(1 + shade), 0, 1));
+            vec4f tr_col = lin_to_srgb(renderable.lin_colour);
+            vec4f br_col = lin_to_srgb(clamp(renderable.lin_colour*(1 - shade), 0, 1));
+            vec4f bl_col = lin_to_srgb(renderable.lin_colour);
 
-            vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol, {tltx.x(), tltx.y()}));
-            vertices.push_back(sf::Vertex({bl.x(), bl.y()}, sfcol, {bltx.x(), bltx.y()}));
-            vertices.push_back(sf::Vertex({br.x(), br.y()}, sfcol, {brtx.x(), brtx.y()}));
+            sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z()*255, tl_col.w()*255);
+            sf::Color sfcol_tr(tr_col.x() * 255, tr_col.y() * 255, tr_col.z()*255, tr_col.w()*255);
+            sf::Color sfcol_br(br_col.x() * 255, br_col.y() * 255, br_col.z()*255, br_col.w()*255);
+            sf::Color sfcol_bl(bl_col.x() * 255, bl_col.y() * 255, bl_col.z()*255, bl_col.w()*255);
 
-            vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol, {tltx.x(), tltx.y()}));
-            vertices.push_back(sf::Vertex({br.x(), br.y()}, sfcol, {brtx.x(), brtx.y()}));
-            vertices.push_back(sf::Vertex({tr.x(), tr.y()}, sfcol, {trtx.x(), trtx.y()}));
+            vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol_tl, {tltx.x(), tltx.y()}));
+            vertices.push_back(sf::Vertex({bl.x(), bl.y()}, sfcol_bl, {bltx.x(), bltx.y()}));
+            vertices.push_back(sf::Vertex({br.x(), br.y()}, sfcol_br, {brtx.x(), brtx.y()}));
+
+            vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol_tl, {tltx.x(), tltx.y()}));
+            vertices.push_back(sf::Vertex({br.x(), br.y()}, sfcol_br, {brtx.x(), brtx.y()}));
+            vertices.push_back(sf::Vertex({tr.x(), tr.y()}, sfcol_tr, {trtx.x(), trtx.y()}));
         }
     }
 
