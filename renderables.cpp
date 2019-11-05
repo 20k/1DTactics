@@ -219,6 +219,8 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
 {
     static std::minstd_rand rng;
 
+    level_type = type;
+
     sf::Image spritemap_unprocessed;
     spritemap_unprocessed.loadFromFile("./assets/colored_transparent.png");
 
@@ -298,14 +300,16 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
 
     if(level_size.x() > 10 && level_size.y() > 10)
     {
-        renderable_object robj;
+        /*renderable_object robj;
         robj.tile_id = get_tile_of(tiles::GROUND_BUG);
         robj.lin_colour = get_colour_of(tiles::GROUND_BUG, type);
 
         tile_object obj;
         obj.obj = robj;
 
-        all_tiles[10 * level_size.x() + 10].push_back(obj);
+        all_tiles[10 * level_size.x() + 10].push_back(obj);*/
+
+        add_entity({10, 10}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
     }
 }
 
@@ -323,6 +327,12 @@ void playspace_manager::tick(double dt_s)
         dir.x() -= 1;
 
     camera_pos += dir * (dt_s * 1000);
+}
+
+void playspace_manager::next_turn()
+{
+    ///uuh who knows
+    turn++;
 }
 
 void playspace_manager::draw(sf::RenderTarget& win)
@@ -375,6 +385,7 @@ void playspace_manager::draw(sf::RenderTarget& win)
 
                 float shade = 0.05;
 
+                ///this is wrong because its not handling alpha correctly
                 vec4f tl_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 + shade), 0, 1));
                 vec4f tr_col = lin_to_srgb_approx(renderable.lin_colour);
                 vec4f br_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 - shade), 0, 1));
@@ -404,4 +415,29 @@ void playspace_manager::draw(sf::RenderTarget& win)
     states.texture = &spritemap;
 
     win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
+}
+
+entity_object& playspace_manager::add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type)
+{
+    if(where.x() < 0 || where.y() < 0 || where.x() >= level_size.x() || where.y() >= level_size.y())
+        throw std::runtime_error("No! Bad add entity at " + std::to_string(where.x()) + " " + std::to_string(where.y()));
+
+    renderable_object robj;
+    robj.tile_id = get_tile_of(type);
+    robj.lin_colour = get_colour_of(type, level_type);
+
+    tile_object obj;
+    obj.obj = robj;
+    obj.passable = false;
+
+    all_tiles[where.y() * level_size.x() + where.x()].push_back(obj);
+
+    entity_object eobj;
+    eobj.tilemap_pos = where;
+    eobj.next_pos = where;
+    eobj.disposition = ai_type;
+
+    entities.push_back(eobj);
+
+    return entities.back();
 }

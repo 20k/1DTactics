@@ -49,6 +49,17 @@ namespace tiles
     };
 }
 
+namespace ai_disposition
+{
+    enum types
+    {
+        HOSTILE, ///the bugs
+        FRIENDLY, ///not sure
+        IDLES, ///animals
+        NONE
+    };
+}
+
 namespace level_info
 {
     enum types
@@ -75,6 +86,14 @@ struct tile_object
     bool passable = true;
 };
 
+struct entity_object
+{
+    vec2i tilemap_pos;
+    vec2i next_pos;
+
+    ai_disposition::types disposition = ai_disposition::NONE;
+};
+
 struct playspace_manager
 {
     sf::Texture spritemap;
@@ -84,11 +103,18 @@ struct playspace_manager
 
     vec2i level_size = {0,0};
     std::vector<std::vector<tile_object>> all_tiles;
+    std::vector<entity_object> entities;
+    level_info::types level_type = level_info::GRASS;
 
     void create_level(vec2i dim, level_info::types type);
 
     void tick(double dt_s);
+    void next_turn();
     void draw(sf::RenderTarget& win);
+
+    uint64_t turn = 0;
+
+    entity_object& add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type);
 };
 
 #endif // RENDERABLES_HPP_INCLUDED
