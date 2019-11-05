@@ -46,53 +46,53 @@ std::map<tiles::types, std::vector<vec2i>>& get_locations()
     add_to(ret[BRAMBLE], {0, 2});
     add_to(ret[BRAMBLE], {0, 6});
 
-    ///top left man is 23, 0
+    ///top left man is 24, 0
 
-    add_to(ret[CIVILIAN], {24, 0});
     add_to(ret[CIVILIAN], {25, 0});
-    add_to(ret[CIVILIAN], {25, 1});
+    add_to(ret[CIVILIAN], {26, 0});
     add_to(ret[CIVILIAN], {26, 1});
-    add_to(ret[CIVILIAN], {28, 1});
+    add_to(ret[CIVILIAN], {27, 1});
     add_to(ret[CIVILIAN], {29, 1});
-    add_to(ret[CIVILIAN], {29, 3});
+    add_to(ret[CIVILIAN], {30, 1});
     add_to(ret[CIVILIAN], {30, 3});
-    add_to(ret[CIVILIAN], {29, 4});
+    add_to(ret[CIVILIAN], {31, 3});
     add_to(ret[CIVILIAN], {30, 4});
-    ///top left scorpion is 23, 5
+    add_to(ret[CIVILIAN], {31, 4});
+    ///top left scorpion is 25, 5
 
-    add_to(ret[SOLDIER], {25, 4});
-    add_to(ret[SOLDIER], {29, 9});
+    add_to(ret[SOLDIER], {26, 4});
+    add_to(ret[SOLDIER], {30, 9});
 
-    add_to(ret[GROUND_BUG], {27, 5});
     add_to(ret[GROUND_BUG], {28, 5});
     add_to(ret[GROUND_BUG], {29, 5});
-    add_to(ret[SMALL_PINCHY], {30, 5});
-    add_to(ret[FLYING_BUG], {25, 5});
-    add_to(ret[ARMOURED_BUG], {26, 5});
-    add_to(ret[SCORPION], {23, 5});
+    add_to(ret[GROUND_BUG], {30, 5});
+    add_to(ret[SMALL_PINCHY], {31, 5});
+    add_to(ret[FLYING_BUG], {26, 5});
+    add_to(ret[ARMOURED_BUG], {27, 5});
+    add_to(ret[SCORPION], {24, 5});
 
-    add_to(ret[LAND_ANIMAL], {24, 7});
     add_to(ret[LAND_ANIMAL], {25, 7});
     add_to(ret[LAND_ANIMAL], {26, 7});
     add_to(ret[LAND_ANIMAL], {27, 7});
-    //add_to(ret[LAND_ANIMAL], {28, 7});
-    add_to(ret[LAND_ANIMAL], {29, 7});
+    add_to(ret[LAND_ANIMAL], {28, 7});
+    //add_to(ret[LAND_ANIMAL], {29, 7});
     add_to(ret[LAND_ANIMAL], {30, 7});
-    add_to(ret[LAND_ANIMAL], {25, 8}); //bat
+    add_to(ret[LAND_ANIMAL], {31, 7});
+    add_to(ret[LAND_ANIMAL], {26, 8}); //bat
 
-    add_to(ret[SEA_ANIMAL], {24, 8});
-    add_to(ret[SEA_ANIMAL], {27, 8});
-    add_to(ret[CROCODILE], {28, 8});
+    add_to(ret[SEA_ANIMAL], {25, 8});
+    add_to(ret[SEA_ANIMAL], {28, 8});
+    add_to(ret[CROCODILE], {29, 8});
 
-    add_to(ret[FACE_MALE], {23, 10});
-    add_to(ret[FACE_MALE], {25, 10});
+    add_to(ret[FACE_MALE], {24, 10});
     add_to(ret[FACE_MALE], {26, 10});
     add_to(ret[FACE_MALE], {27, 10});
     add_to(ret[FACE_MALE], {28, 10});
+    add_to(ret[FACE_MALE], {29, 10});
 
-    add_to(ret[FACE_WOMAN], {24, 10});
-    add_to(ret[FACE_WOMAN], {29, 10});
+    add_to(ret[FACE_WOMAN], {25, 10});
     add_to(ret[FACE_WOMAN], {30, 10});
+    add_to(ret[FACE_WOMAN], {31, 10});
 
     add_to(ret[THIN_DOOR_CLOSED], {3, 4});
     add_to(ret[THIN_DOOR_OPEN], {4, 4});
@@ -260,6 +260,18 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
 
             i.push_back(obj);
         }
+    }
+
+    if(level_size.x() > 10 && level_size.y() > 10)
+    {
+        renderable_object robj;
+        robj.tile_id = get_tile_of(tiles::GROUND_BUG);
+        robj.lin_colour = get_colour_of(tiles::GROUND_BUG, type);
+
+        tile_object obj;
+        obj.obj = robj;
+
+        all_tiles[10 * level_size.x() + 10].push_back(obj);
     }
 }
 
