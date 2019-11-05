@@ -309,7 +309,11 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
 
         all_tiles[10 * level_size.x() + 10].push_back(obj);*/
 
-        add_entity({10, 10}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
+        auto e_1 = add_entity({10, 10}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
+        auto e_2 = add_entity({12, 10}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
+        auto e_3 = add_entity({13, 13}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
+
+        make_squad({e_1, e_2, e_3});
     }
 }
 
@@ -417,7 +421,7 @@ void playspace_manager::draw(sf::RenderTarget& win)
     win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
 }
 
-entity_object& playspace_manager::add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type)
+uint64_t playspace_manager::add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type)
 {
     if(where.x() < 0 || where.y() < 0 || where.x() >= level_size.x() || where.y() >= level_size.y())
         throw std::runtime_error("No! Bad add entity at " + std::to_string(where.x()) + " " + std::to_string(where.y()));
@@ -441,5 +445,13 @@ entity_object& playspace_manager::add_entity(vec2i where, tiles::types type, ai_
 
     entities[eobj.my_id] = eobj;
 
-    return entities[eobj.my_id];
+    return eobj.my_id;
+}
+
+void playspace_manager::make_squad(const std::vector<uint64_t>& ids)
+{
+    squad sq;
+    sq.entities = ids;
+
+    squads.push_back(sq);
 }
