@@ -240,7 +240,6 @@ void playspace_manager::draw(sf::RenderWindow& win)
     std::vector<sf::Vertex> vertices;
     vertices.reserve(level_size.y() * level_size.x() * 6);
 
-    #if 0
     for(int y=0; y < level_size.y(); y++)
     {
         for(int x=0; x < level_size.x(); x++)
@@ -266,25 +265,6 @@ void playspace_manager::draw(sf::RenderWindow& win)
 
             vec2f tex_size = {spritemap.getSize().x, spritemap.getSize().y};
 
-            /*tltx = {0, 0};
-            trtx = {16, 0};
-            brtx = {16, 16};
-            bltx = {0, 16};*/
-
-            /*tltx.y() = spritemap.getSize().y - tltx.y() - 1;
-            trtx.y() = spritemap.getSize().y - trtx.y() - 1;
-            brtx.y() = spritemap.getSize().y - brtx.y() - 1;
-            bltx.y() = spritemap.getSize().y - bltx.y() - 1;
-
-            std::cout << tltx << std::endl;*/
-
-            /*tltx = tltx / tex_size;
-            trtx = trtx / tex_size;
-            brtx = brtx / tex_size;
-            bltx = bltx / tex_size;*/
-
-            //std::cout << "TLTX " << tltx << std::endl;
-
             vec4f col_srgb = lin_to_srgb(renderable.lin_colour);
 
             sf::Color sfcol(col_srgb.x()*255.f, col_srgb.y()*255.f, col_srgb.z()*255.f, col_srgb.w()*255.f);
@@ -298,16 +278,12 @@ void playspace_manager::draw(sf::RenderWindow& win)
             vertices.push_back(sf::Vertex({tr.x(), tr.y()}, sfcol, {trtx.x(), trtx.y()}));
         }
     }
-    #endif // 0
 
-    sf::Sprite spr(spritemap);
-
-    //assert(vertices.size() > 0);
+    assert(vertices.size() > 0);
 
     sf::RenderStates states;
     states.blendMode = sf::BlendAlpha;
     states.texture = &spritemap;
 
-    win.draw(spr);
-    //win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
+    win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
 }

@@ -160,14 +160,6 @@ int main(int argc, char* argv[])
             win.setActive(true);
 
             win.clear();
-
-            sf::RectangleShape shape;
-            shape.setFillColor(sf::Color(255, 255, 255, 255));
-            shape.setPosition(100, 100);
-            shape.setSize({10, 10});
-
-            win.draw(shape);
-
             level.draw(win);
         }
 
