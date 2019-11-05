@@ -219,7 +219,41 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
 {
     static std::minstd_rand rng;
 
-    spritemap.loadFromFile("./assets/colored.png");
+    sf::Image spritemap_unprocessed;
+    spritemap_unprocessed.loadFromFile("./assets/colored_transparent.png");
+
+    constexpr vec3f transparency_colour = srgb_to_lin_approx((vec3f){71, 45, 60} / 255.f);
+
+    for(int y=0; y < (int)spritemap_unprocessed.getSize().y; y++)
+    {
+        for(int x=0; x < (int)spritemap_unprocessed.getSize().x; x++)
+        {
+            if(y < 0 || x < 0 || x >= TILE_PIX || y >= TILE_PIX)
+                continue;
+
+            sf::Color col = spritemap_unprocessed.getPixel(x, y);
+
+            vec4f pcol = {col.r, col.g, col.b, col.a};
+            pcol = pcol / 255.f;
+
+            vec3f to_mix = srgb_to_lin_approx(pcol.xyz());
+
+            vec3f result = mix(to_mix, transparency_colour, 1 - pcol.w());
+
+            pcol = lin_to_srgb_approx((vec4f){result.x(), result.y(), result.z(), 1});
+
+            pcol = pcol * 255.f;
+
+            pcol = round(pcol);
+            pcol = clamp(pcol, 0, 255);
+
+            spritemap_unprocessed.setPixel(x, y, sf::Color(pcol.x(), pcol.y(), pcol.z(), pcol.w()));
+        }
+    }
+
+    spritemap.loadFromImage(spritemap_unprocessed);
+    //spritemap.loadFromFile("./assets/colored_transparent.png");
+    //spritemap.setSrgb(true);
 
     std::cout << "SXDIM " << spritemap.getSize().x << std::endl;
 
