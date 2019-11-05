@@ -128,6 +128,7 @@ int main(int argc, char* argv[])
 
     playspace_manager level;
     level.create_level({100, 100}, level_info::GRASS);
+    level.camera_pos = {win.getSize().x/2, win.getSize().y/2};
 
     win.setActive(false);
     glfwMakeContextCurrent(window);
@@ -153,7 +154,7 @@ int main(int argc, char* argv[])
 
         auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - screen_absolute_pos;
 
-        level.tick(1);
+        level.tick(ImGui::GetIO().DeltaTime);
 
         {
             win.resetGLStates();

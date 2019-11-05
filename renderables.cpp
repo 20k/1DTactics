@@ -1,6 +1,8 @@
 #include "renderables.hpp"
 #include <assert.h>
 #include <iostream>
+#include <imgui/imgui.h>
+#include <GLFW/glfw3.h>
 
 template<typename T>
 void add_to(T& in, vec2i loc)
@@ -263,7 +265,18 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
 
 void playspace_manager::tick(double dt_s)
 {
+    vec2f dir;
 
+    if(ImGui::IsKeyDown(GLFW_KEY_W))
+        dir.y() -= 1;
+    if(ImGui::IsKeyDown(GLFW_KEY_S))
+        dir.y() += 1;
+    if(ImGui::IsKeyDown(GLFW_KEY_D))
+        dir.x() += 1;
+    if(ImGui::IsKeyDown(GLFW_KEY_A))
+        dir.x() -= 1;
+
+    camera_pos += dir * dt_s * 1000;
 }
 
 void playspace_manager::draw(sf::RenderWindow& win)
@@ -271,9 +284,25 @@ void playspace_manager::draw(sf::RenderWindow& win)
     std::vector<sf::Vertex> vertices;
     vertices.reserve(level_size.y() * level_size.x() * 6);
 
-    for(int y=0; y < level_size.y(); y++)
+    vec2f window_half_dim = {win.getSize().x/2, win.getSize().y/2};
+
+    vec2f tl_visible = camera_pos - window_half_dim;
+    vec2f br_visible = camera_pos + window_half_dim;
+
+    int x_start = floor(tl_visible.x() / TILE_PIX) - 1;
+    int y_start = floor(tl_visible.y() / TILE_PIX) - 1;
+
+    int x_end = ceil(br_visible.x() / TILE_PIX) + 1;
+    int y_end = ceil(br_visible.y() / TILE_PIX) + 1;
+
+    x_start = clamp(x_start, 0, level_size.x());
+    x_end = clamp(x_end, 0, level_size.x());
+    y_start = clamp(y_start, 0, level_size.y());
+    y_end = clamp(y_end, 0, level_size.y());
+
+    for(int y=y_start; y < level_size.y() && y < y_end; y++)
     {
-        for(int x=0; x < level_size.x(); x++)
+        for(int x=x_start; x < level_size.x() && x < x_end; x++)
         {
             for(const tile_object& tobj : all_tiles[y * level_size.x() + x])
             {
@@ -282,7 +311,9 @@ void playspace_manager::draw(sf::RenderWindow& win)
                 vec2f logical_pos = (vec2f){x, y} * TILE_PIX;
                 vec2f real_pos = logical_pos - camera_pos;
 
-                real_pos = round(real_pos);
+                real_pos += window_half_dim;
+
+                //real_pos = round(real_pos);
 
                 vec2f tl = real_pos + (vec2f){-TILE_PIX/2, -TILE_PIX/2};
                 vec2f tr = real_pos + (vec2f){TILE_PIX/2, -TILE_PIX/2};
