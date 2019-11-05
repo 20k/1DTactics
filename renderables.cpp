@@ -131,8 +131,8 @@ std::map<tiles::types, std::vector<vec2i>>& get_locations()
 
 vec4f get_colour_of(tiles::types tile_type, level_info::types level_type)
 {
-    vec4f barren_col = srgb_to_lin((vec4f){122, 68, 74, 255} / 255.f);
-    vec4f grass_col = srgb_to_lin((vec4f){56, 217, 115, 255} / 255.f);;
+    constexpr vec4f barren_col = srgb_to_lin_approx((vec4f){122, 68, 74, 255} / 255.f);
+    constexpr vec4f grass_col = srgb_to_lin_approx((vec4f){56, 217, 115, 255} / 255.f);
 
     if(tile_type == tiles::BRAMBLE || tile_type == tiles::SHRUB || tile_type == tiles::BASE)
     {
@@ -153,9 +153,9 @@ vec4f get_colour_of(tiles::types tile_type, level_info::types level_type)
        tile_type == tiles::CULTIVATION || tile_type == tiles::CROCODILE)
        return grass_col;
 
-    vec4f wood_col = srgb_to_lin((vec4f){191, 121, 88, 255} / 255.f);
-    vec4f building_gray = srgb_to_lin((vec4f){207, 198, 184, 255} / 255.f);
-    vec4f generic_red = srgb_to_lin((vec4f){230, 72, 46, 255} / 255.f);
+    constexpr vec4f wood_col = srgb_to_lin_approx((vec4f){191, 121, 88, 255} / 255.f);
+    constexpr vec4f building_gray = srgb_to_lin_approx((vec4f){207, 198, 184, 255} / 255.f);
+    constexpr vec4f generic_red = srgb_to_lin_approx((vec4f){230, 72, 46, 255} / 255.f);
 
     if(tile_type == tiles::ROCKS || tile_type == tiles::GRAVE || tile_type == tiles::TILING_WALL)
         return building_gray;
@@ -276,10 +276,10 @@ void playspace_manager::tick(double dt_s)
     if(ImGui::IsKeyDown(GLFW_KEY_A))
         dir.x() -= 1;
 
-    camera_pos += dir * dt_s * 1000;
+    camera_pos += dir * (dt_s * 1000);
 }
 
-void playspace_manager::draw(sf::RenderWindow& win)
+void playspace_manager::draw(sf::RenderTarget& win)
 {
     std::vector<sf::Vertex> vertices;
     vertices.reserve(level_size.y() * level_size.x() * 6);
@@ -327,19 +327,17 @@ void playspace_manager::draw(sf::RenderWindow& win)
                 vec2f brtx = {texture_coordinate.x() + TILE_PIX, texture_coordinate.y() + TILE_PIX};
                 vec2f bltx = {texture_coordinate.x(), texture_coordinate.y() + TILE_PIX};
 
-                vec2f tex_size = {spritemap.getSize().x, spritemap.getSize().y};
-
                 float shade = 0.05;
 
-                vec4f tl_col = lin_to_srgb(clamp(renderable.lin_colour*(1 + shade), 0, 1));
-                vec4f tr_col = lin_to_srgb(renderable.lin_colour);
-                vec4f br_col = lin_to_srgb(clamp(renderable.lin_colour*(1 - shade), 0, 1));
-                vec4f bl_col = lin_to_srgb(renderable.lin_colour);
+                vec4f tl_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 + shade), 0, 1));
+                vec4f tr_col = lin_to_srgb_approx(renderable.lin_colour);
+                vec4f br_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 - shade), 0, 1));
+                vec4f bl_col = lin_to_srgb_approx(renderable.lin_colour);
 
-                sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z()*255, tl_col.w()*255);
-                sf::Color sfcol_tr(tr_col.x() * 255, tr_col.y() * 255, tr_col.z()*255, tr_col.w()*255);
-                sf::Color sfcol_br(br_col.x() * 255, br_col.y() * 255, br_col.z()*255, br_col.w()*255);
-                sf::Color sfcol_bl(bl_col.x() * 255, bl_col.y() * 255, bl_col.z()*255, bl_col.w()*255);
+                sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z() * 255, tl_col.w() * 255);
+                sf::Color sfcol_tr(tr_col.x() * 255, tr_col.y() * 255, tr_col.z() * 255, tr_col.w() * 255);
+                sf::Color sfcol_br(br_col.x() * 255, br_col.y() * 255, br_col.z() * 255, br_col.w() * 255);
+                sf::Color sfcol_bl(bl_col.x() * 255, bl_col.y() * 255, bl_col.z() * 255, bl_col.w() * 255);
 
                 vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol_tl, {tltx.x(), tltx.y()}));
                 vertices.push_back(sf::Vertex({bl.x(), bl.y()}, sfcol_bl, {bltx.x(), bltx.y()}));
@@ -352,7 +350,8 @@ void playspace_manager::draw(sf::RenderWindow& win)
         }
     }
 
-    assert(vertices.size() > 0);
+    if(vertices.size() == 0)
+        return;
 
     sf::RenderStates states;
     states.blendMode = sf::BlendAlpha;

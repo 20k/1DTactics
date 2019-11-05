@@ -88,7 +88,7 @@ struct playspace_manager
     void create_level(vec2i dim, level_info::types type);
 
     void tick(double dt_s);
-    void draw(sf::RenderWindow& win);
+    void draw(sf::RenderTarget& win);
 };
 
 #endif // RENDERABLES_HPP_INCLUDED

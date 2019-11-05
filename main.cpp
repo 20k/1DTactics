@@ -48,6 +48,7 @@ int main(int argc, char* argv[])
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    //glfwWindowHint( GLFW_DOUBLEBUFFER, GL_FALSE );
     //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
     //glfwWindowHint(GLFW_SAMPLES, 8);
@@ -121,13 +122,16 @@ int main(int argc, char* argv[])
     static_assert(false);
     #endif // GLFW_EXPOSE_NATIVE_WAYLAND
 
+    glfwMakeContextCurrent(nullptr);
+
     sf::ContextSettings sett(24, 8, 0, 3, 0, 0, false);
 
     sf::RenderWindow win(native_handle, sett);
     win.setActive(true);
+    win.setVerticalSyncEnabled(true);
 
     playspace_manager level;
-    level.create_level({100, 100}, level_info::GRASS);
+    level.create_level({1000, 1000}, level_info::GRASS);
     level.camera_pos = {win.getSize().x/2, win.getSize().y/2};
 
     win.setActive(false);
@@ -146,6 +150,9 @@ int main(int argc, char* argv[])
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        if(ImGui::IsKeyDown(GLFW_KEY_N))
+            std::cout << ImGui::GetIO().DeltaTime << std::endl;
+
         int wxpos = 0;
         int wypos = 0;
         glfwGetWindowPos(window, &wxpos, &wypos);
@@ -157,8 +164,9 @@ int main(int argc, char* argv[])
         level.tick(ImGui::GetIO().DeltaTime);
 
         {
-            win.resetGLStates();
+            glfwMakeContextCurrent(nullptr);
             win.setActive(true);
+            win.resetGLStates();
 
             win.clear();
             level.draw(win);
@@ -188,14 +196,15 @@ int main(int argc, char* argv[])
             glfwMakeContextCurrent(backup_current_context);
         }
 
+        glfwMakeContextCurrent(nullptr);
         win.setActive(true);
         win.resetGLStates();
 
         win.display();
-        //glfwSwapBuffers(window);
 
         win.setActive(false);
         glfwMakeContextCurrent(window);
+        //glfwSwapBuffers(window);
     }
 
     return 0;
