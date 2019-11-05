@@ -91,13 +91,10 @@ struct entity_object
     vec2i tilemap_pos;
     vec2i next_pos;
     uint64_t my_id = -1;
+    bool finished_turn = false;
+    size_t squad_id = -1;
 
     ai_disposition::types disposition = ai_disposition::NONE;
-};
-
-struct squad
-{
-    std::vector<uint64_t> entities;
 };
 
 struct playspace_manager
@@ -105,6 +102,7 @@ struct playspace_manager
     sf::Texture spritemap;
 
     static inline uint64_t entity_gid = 0;
+    static inline uint64_t squad_gid = 0;
 
     vec2f camera_pos;
     float zoom = 1;
@@ -112,7 +110,6 @@ struct playspace_manager
     vec2i level_size = {0,0};
     std::vector<std::vector<tile_object>> all_tiles;
     std::map<uint64_t, entity_object> entities;
-    std::vector<squad> squads;
 
     level_info::types level_type = level_info::GRASS;
 

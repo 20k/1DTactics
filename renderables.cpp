@@ -331,12 +331,24 @@ void playspace_manager::tick(double dt_s)
         dir.x() -= 1;
 
     camera_pos += dir * (dt_s * 1000);
+
+    bool is_in_hostile_turn = (turn % 2) == 1;
+
+    if(is_in_hostile_turn)
+    {
+
+    }
 }
 
 void playspace_manager::next_turn()
 {
     ///uuh who knows
     turn++;
+
+    for(auto& i : entities)
+    {
+        i.second.finished_turn = false;
+    }
 }
 
 void playspace_manager::draw(sf::RenderTarget& win)
@@ -450,8 +462,10 @@ uint64_t playspace_manager::add_entity(vec2i where, tiles::types type, ai_dispos
 
 void playspace_manager::make_squad(const std::vector<uint64_t>& ids)
 {
-    squad sq;
-    sq.entities = ids;
+    auto nid = squad_gid++;
 
-    squads.push_back(sq);
+    for(auto& i : ids)
+    {
+        entities[i].squad_id = nid;
+    }
 }
