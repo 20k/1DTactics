@@ -1,5 +1,6 @@
 #include "renderables.hpp"
-
+#include <assert.h>
+#include <iostream>
 
 template<typename T>
 void add_to(T& in, vec2i loc)
@@ -204,6 +205,10 @@ vec2i get_tile_of(tiles::types type)
 
 void playspace_manager::create_level(vec2i dim, level_info::types type)
 {
+    spritemap.loadFromFile("./assets/colored.png");
+
+    std::cout << "SXDIM " << spritemap.getSize().x << std::endl;
+
     level_size = dim;
     all_tiles.resize(level_size.x() * level_size.y());
 
@@ -215,6 +220,12 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
         {
             renderable_object robj;
             robj.tile_id = get_tile_of(tiles::GRASS);
+            robj.lin_colour = get_colour_of(tiles::GRASS, type);
+
+            tile_object obj;
+            obj.obj = robj;
+
+            all_tiles[y * level_size.x() + x] = obj;
         }
     }
 }
@@ -226,5 +237,77 @@ void playspace_manager::tick(double dt_s)
 
 void playspace_manager::draw(sf::RenderWindow& win)
 {
+    std::vector<sf::Vertex> vertices;
+    vertices.reserve(level_size.y() * level_size.x() * 6);
 
+    #if 0
+    for(int y=0; y < level_size.y(); y++)
+    {
+        for(int x=0; x < level_size.x(); x++)
+        {
+            const renderable_object& renderable = all_tiles[y*level_size.x() + x].obj;
+
+            vec2f logical_pos = (vec2f){x, y} * TILE_PIX;
+            vec2f real_pos = logical_pos - camera_pos;
+
+            real_pos = round(real_pos);
+
+            vec2f tl = real_pos + (vec2f){-TILE_PIX/2, -TILE_PIX/2};
+            vec2f tr = real_pos + (vec2f){TILE_PIX/2, -TILE_PIX/2};
+            vec2f br = real_pos + (vec2f){TILE_PIX/2, TILE_PIX/2};
+            vec2f bl = real_pos + (vec2f){-TILE_PIX/2, TILE_PIX/2};
+
+            vec2i texture_coordinate = renderable.tile_id * (TILE_PIX + TILE_SEP);
+
+            vec2f tltx = {texture_coordinate.x(), texture_coordinate.y()};
+            vec2f trtx = {texture_coordinate.x() + TILE_PIX, texture_coordinate.y()};
+            vec2f brtx = {texture_coordinate.x() + TILE_PIX, texture_coordinate.y() + TILE_PIX};
+            vec2f bltx = {texture_coordinate.x(), texture_coordinate.y() + TILE_PIX};
+
+            vec2f tex_size = {spritemap.getSize().x, spritemap.getSize().y};
+
+            /*tltx = {0, 0};
+            trtx = {16, 0};
+            brtx = {16, 16};
+            bltx = {0, 16};*/
+
+            /*tltx.y() = spritemap.getSize().y - tltx.y() - 1;
+            trtx.y() = spritemap.getSize().y - trtx.y() - 1;
+            brtx.y() = spritemap.getSize().y - brtx.y() - 1;
+            bltx.y() = spritemap.getSize().y - bltx.y() - 1;
+
+            std::cout << tltx << std::endl;*/
+
+            /*tltx = tltx / tex_size;
+            trtx = trtx / tex_size;
+            brtx = brtx / tex_size;
+            bltx = bltx / tex_size;*/
+
+            //std::cout << "TLTX " << tltx << std::endl;
+
+            vec4f col_srgb = lin_to_srgb(renderable.lin_colour);
+
+            sf::Color sfcol(col_srgb.x()*255.f, col_srgb.y()*255.f, col_srgb.z()*255.f, col_srgb.w()*255.f);
+
+            vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol, {tltx.x(), tltx.y()}));
+            vertices.push_back(sf::Vertex({bl.x(), bl.y()}, sfcol, {bltx.x(), bltx.y()}));
+            vertices.push_back(sf::Vertex({br.x(), br.y()}, sfcol, {brtx.x(), brtx.y()}));
+
+            vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol, {tltx.x(), tltx.y()}));
+            vertices.push_back(sf::Vertex({br.x(), br.y()}, sfcol, {brtx.x(), brtx.y()}));
+            vertices.push_back(sf::Vertex({tr.x(), tr.y()}, sfcol, {trtx.x(), trtx.y()}));
+        }
+    }
+    #endif // 0
+
+    sf::Sprite spr(spritemap);
+
+    //assert(vertices.size() > 0);
+
+    sf::RenderStates states;
+    states.blendMode = sf::BlendAlpha;
+    states.texture = &spritemap;
+
+    win.draw(spr);
+    //win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
 }

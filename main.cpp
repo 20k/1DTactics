@@ -124,7 +124,12 @@ int main(int argc, char* argv[])
     sf::ContextSettings sett(24, 8, 0, 3, 0, 0, false);
 
     sf::RenderWindow win(native_handle, sett);
+    win.setActive(true);
 
+    playspace_manager level;
+    level.create_level({100, 100}, level_info::GRASS);
+
+    win.setActive(false);
     glfwMakeContextCurrent(window);
 
     bool running = true;
@@ -148,7 +153,10 @@ int main(int argc, char* argv[])
 
         auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - screen_absolute_pos;
 
+        level.tick(1);
+
         {
+            win.resetGLStates();
             win.setActive(true);
 
             win.clear();
@@ -159,6 +167,8 @@ int main(int argc, char* argv[])
             shape.setSize({10, 10});
 
             win.draw(shape);
+
+            level.draw(win);
         }
 
         ImGui::Begin("Test");
@@ -167,6 +177,7 @@ int main(int argc, char* argv[])
 
         ImGui::Render();
 
+        win.setActive(false);
         glfwMakeContextCurrent(window);
 
         int display_w, display_h;
@@ -185,10 +196,12 @@ int main(int argc, char* argv[])
         }
 
         win.setActive(true);
+        win.resetGLStates();
 
         win.display();
         //glfwSwapBuffers(window);
 
+        win.setActive(false);
         glfwMakeContextCurrent(window);
     }
 

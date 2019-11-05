@@ -76,7 +76,9 @@ struct tile_object
 
 struct playspace_manager
 {
-    vec2f camera;
+    sf::Texture spritemap;
+
+    vec2f camera_pos;
     float zoom = 1;
 
     vec2i level_size = {0,0};
