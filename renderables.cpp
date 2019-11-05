@@ -317,6 +317,42 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
     }
 }
 
+unit_command enemy_step_single(playspace_manager& playspace, entity_object& to_step)
+{
+    unit_command idle_move;
+    idle_move.type = unit_command::MOVE;
+
+    idle_move.move_destination = to_step.tilemap_pos + (vec2i){5, 0};
+
+    return idle_move;
+}
+
+std::optional<unit_command> enemy_step(playspace_manager& playspace)
+{
+    int next_exec = playspace.next_entity;
+    int cur_exec = 0;
+
+    int start_size = playspace.entities.size();
+
+    //for(auto& i : entity_object)
+    for(auto it = playspace.entities.begin(); it != playspace.entities.end(); it++)
+    {
+        if(next_exec == cur_exec)
+        {
+            return enemy_step_single(playspace, it->second);
+        }
+
+        cur_exec++;
+    }
+
+    if(start_size != (int)playspace.entities.size())
+    {
+        printf("Warning, playspace entities incorrectly modified\n");
+    }
+
+    return std::nullopt;
+}
+
 void playspace_manager::tick(double dt_s)
 {
     vec2f dir;
@@ -334,9 +370,22 @@ void playspace_manager::tick(double dt_s)
 
     bool is_in_hostile_turn = (turn % 2) == 1;
 
-    if(is_in_hostile_turn)
+    if(is_in_hostile_turn && step_enemies)
     {
+        auto found = enemy_step(*this);
 
+        step_enemies = false;
+
+        next_entity++;
+
+        if(found == std::nullopt)
+        {
+            is_in_hostile_turn = false;
+
+            next_turn();
+        }
+
+        playing_move = found;
     }
 }
 
@@ -348,6 +397,12 @@ void playspace_manager::next_turn()
     for(auto& i : entities)
     {
         i.second.finished_turn = false;
+    }
+
+    if((turn % 2) == 1)
+    {
+        step_enemies = true;
+        next_entity = 0;
     }
 }
 
@@ -450,7 +505,6 @@ uint64_t playspace_manager::add_entity(vec2i where, tiles::types type, ai_dispos
 
     entity_object eobj;
     eobj.tilemap_pos = where;
-    eobj.next_pos = where;
     eobj.disposition = ai_type;
 
     eobj.my_id = entity_gid++;

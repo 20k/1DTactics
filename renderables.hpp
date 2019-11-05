@@ -89,12 +89,24 @@ struct tile_object
 struct entity_object
 {
     vec2i tilemap_pos;
-    vec2i next_pos;
     uint64_t my_id = -1;
     bool finished_turn = false;
     size_t squad_id = -1;
 
     ai_disposition::types disposition = ai_disposition::NONE;
+};
+
+struct unit_command
+{
+    enum types
+    {
+        MOVE,
+        SHOOT,
+        END,
+    };
+
+    vec2i move_destination;
+    types type = types::END;
 };
 
 struct playspace_manager
@@ -109,7 +121,7 @@ struct playspace_manager
 
     vec2i level_size = {0,0};
     std::vector<std::vector<tile_object>> all_tiles;
-    std::map<uint64_t, entity_object> entities;
+    std::map<uint64_t, entity_object> entities; ///UNITS, not anything else. Actionable entities like chickens, crocodiles
 
     level_info::types level_type = level_info::GRASS;
 
@@ -120,9 +132,14 @@ struct playspace_manager
     void draw(sf::RenderTarget& win);
 
     uint64_t turn = 0;
+    bool step_enemies = false;
+    int next_entity = 0;
 
     uint64_t add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type);
     void make_squad(const std::vector<uint64_t>& ids);
+
+
+    std::optional<unit_command> playing_move;
 };
 
 #endif // RENDERABLES_HPP_INCLUDED
