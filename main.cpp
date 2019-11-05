@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
     static_assert(false);
     #endif // GLFW_EXPOSE_NATIVE_WAYLAND
 
-    glfwMakeContextCurrent(nullptr);
+    //glfwMakeContextCurrent(nullptr);
 
     sf::ContextSettings sett(24, 8, 0, 3, 0, 0, false);
 
@@ -185,6 +185,7 @@ int main(int argc, char* argv[])
         glfwGetFramebufferSize(window, &display_w, &display_h);
 
         glViewport(0, 0, display_w, display_h);
+        glDrawBuffer(GL_BACK);
         glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
