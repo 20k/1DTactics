@@ -1,0 +1,157 @@
+
+///so
+///simple, easy, quick
+///1D tactical xcom game with coop
+///starship troopers meets multiplayer
+
+///What makes starship troopers fun?
+///1. The aliens
+///2. The aliens are bloody lethal
+///3. Everyone gets horribly and brutally absolutely maimed
+///4. The aliens will kill you
+///5. Sense of camaraderie
+///6. Capture a bug. The lethal bugs. With a shitty web gun. You better take it
+///7. General limb dismemberment and replacement with cybernetics
+
+///What makes xcom fun?
+///1. Tactical decisions in combat
+///2. Tactical decisions in combat lead to economic benefits
+///3. Economic upgrades lead to more varied and better tactical decisions
+///4. The aliens will absolutely wreck your shit
+
+///What makes multiplayer fun?
+///1. Strategising with a friend
+///2. Sense of tension
+///3. Watching precious marines get brutally maimed
+///4. "Ill watch over there, you watch over here"
+///5. "I'll handle sniping from a distance, you handle the heavy MGs and breaching"
+///6. "We're getting attacked from both sides, I'll take the back and you take the front"
+
+///What makes rimworld fun?
+///1. Gruelling subsistance, feeling of scavenging off the land, barely making it through. Crops fail -> harsh winter, farm the animals (very unreliable)
+///2. Gradual progression. Game becomes unfun once the subsistance wears off. Random difficulty rimworld style is bad
+///3. Lots of the random events are fun because it forces a new play style, or creates a thematic event where all the animals die. World changing where you adapt but don't necessarily suffer (unless very unprepared)
+///4. Attachment to the peons. This is both a good and bad thing, Good: Super invested in the journey of individual characters. Bad: Encourages massive save scumming, hard to let go, becomes frustrating because you can never lose a peon
+///5. We can rebuild him. Better. Faster. Stronger. Random health effects are where rimworld absolutely shines. Loved character/cat gets dementia. Shot in the brain -> random savant
+///6. Being able to make your own shit
+
+///What makes ck2 fun?
+///1. Characters attachment, but death isn't the end of the game. Everyone must die eventually. Not too personalised, but they acquire a wide variety of traits. CK2's trait system is all out brilliant. Earn traits by doing the thing that make you better at it
+///2. Co-op - can have big co-op wars, plan together. Border crunch is a bit too conflicty
+///3. Always a short, medium, and long term plan
+
+///What makes DRG fun?
+///1. Very diverse random level generation. Copy DRG wholesale here
+///2. Relatively diverse enemies. In DRG they're only partly tied to biome, but the small pool of enemies from the larger gang means that you have to adapt your playstyle each run and prevents boredom
+///3. The aliens will absolutely wreck your shit
+///4. Crits/skill based gameplay
+///5. Resource gathering... to some degree
+
+///What makes this game fun?
+///1. Pick and name your troopers from a preset pool by taking them into squads and sending them out into the field. Idle/unused troopers drift in and out, can influence new trooper recruitment somehow
+///2. Troopers gain traits - NOT strictly an XP system. Lots of traits attainable, eg keep giving the sniper guy the sniper and he'll get good at snipers. Investment, NOT XP
+///3. Brutal, tactical difficulty. Not every trooper will come home alive, make tactical sacrifices. In a good mission, 4/5ths come home alive. In a bad mission, 1/3rd come home alive
+///4. Complex damage system. Target the limbs of enemies. Troopers don't immediately die, but bleed out and get injured. Carry and lift injured troopers, or leave them to die [ties in with perk system]. Upgrade them. Mechs?
+///5. Progression of information. Start off with relatively barren information about enemies. Capture them, study them, and learn their weaknesses
+///6. Progression of technology. Prioritise research advancements, decide where funding goes. Better rifles, better leg plates. Start marines off fairly obviously weak in one area (helmets)
+///7. Mix and match equipment, but be extremely wary of fatigue. Squad presets. Company loadouts. Substitutions. Default armour
+///8. Bring back troopers who die. Infest them, use them as enemy meatshields as 'psychological warfare'.
+///9. I am making this my home. Commandeer defensible areas for objectives. Actively trigger the bad. Shape the environment by placing down walls. Emplacements that troopers stand on. The enemy is overwhelming but you have to do your job. Stun grenades, trip mines, gas bombs, distraction grenades etc
+
+///Economics in the broad strokes
+///1. Separate out technology and information
+///2. Information is your understanding of specific enemies - if a new enemy type cropped up you'd understand very little about it. Fighting and killing them gives some info, but capturing alive gives concrete bonuses. Bonuses should not be secret. Eg give specific knowledge of vision and sound radius
+///3. Technology is the equipment you field. Better prosthetics, med packs, rifles, machine gun emplacements etc. Start off quite rag tag, rapidly advance to a mediocre military force, eventually you have 'proper' equipment. Should be able to get bulk tech advancements by doing difficult accomplishments, combined with your own steady research
+///3.1 Rimworld tech is actually a pretty ok system. Under no circumstances should you be able to build buildings that give you faster tech research, unless its finite. Eg upgrade your lab to a superlab, get concrete bonuses intead of just +5% research speed
+///4. Tech should be a mix of direct upgrades, desperate hole filling (where your army lacks, eg bodyarmour or medpacks), new cool weapon mixes (snipers), or cool tactical shit
+///5. New equipment should roll in somehow and gradually become more prevelant. Maybe pseudo factory style, see hoi4 production ramp? New equipment could be slower to produce, so you want to maintain a mix until you can upgrade factories
+
+///Combat in the broad strokes
+///1. Tense, tactical, and turn based
+///2. If the enemies get into your ranks, you are screwed. Melee is ineffective
+///3. There are ranged and flying enemies
+///4. Most combat takes place on ground level, but there are emplacements and roofs. Avoid TD at all costs
+///5. Disabling enemies is less effective if done right off the bat than just firing, so generally fire then disable as appropriate, unless specifically disabling. VATS?
+///6. Damage is complex. Your marines are going to get limbs sliced off, but dying should be a bit more tricky. Bleeding to death will be common. Flying enemies are going to be an absolute shitfest. Armour is battletech not DF and gets smashed
+///7. Proper tactical use of equipment. Foam mines. Tripwire mines. Gun emplacements. Grenades. Underbarrel launchers. Absolute shitfest of equipment you can bring, but limited space?
+///8. Guns are accurate mostly but damage is fairly random. Some sort of AP system so you can guarantee damage when you need it more? Would iron out the bullshit
+///9. Loads of terrain. Rocks, swamps, ruined houses, torn down outposts, caves, narrow canyons (? elevation)
+///10. Critically you can modify the terrain. Shift rocks, tear down walls, reinforce things, total miniature mechanisation squad - should feel super industrious and awesome. The power of work
+///11. Enemy morale. Don't necessary need to kill enemies to get them to leave. Humanise them? Make them drag off the bodies of their fallen comrades? Or brutalise them, no surrender?
+///12. Enemy suppression. Not suicidal?
+///13. WEIGHT IS A KEY FACTOR
+
+///NEED TO DEFINE OVERWORLD
+///Central bug hive in central tile, gradually move towards it in increasing hostility? Or could more xcom with world gets more hostile. Look at ck2 and hoi4 and how they make a compelling eco, also maybe play xcom 2
+///Could do it xcom style - world is lost, make contact with resistance forces in various places which gets you more assets, but its a bit... not sure. Works for xcom. Theming is important for me so I like the idea of
+///freeing explicit resistance people, getting personnel and resources like that
+
+///SINGLE TERRAIN HEIGHT MEANS ELEVATION IS SADFACE
+
+///Economics in the specifics
+///1. Technology
+///1.1 Primary Weapons
+///1.1.1 Basic starting rifle - single shot before reloading, basically a lee enfield. poor dps, ok damage, good range, ok accuracy
+///1.1.2 Bad assault rifle - Two bursts before reloading. ok dps, poor damage, ok range, poor accuracy
+///1.1.3 Bad shotgun - Three shots before reloading. Good dps, good damage, terrible range, good accuracy. Weapon of last resort
+///1.1.4 Bad rifle - single shot before reloading. Poor dps, good damage. Replacement sniper for 1.1.1
+///1.1.5 Bad flamer - single shot before reloading. Very low ammo. Sets areas on fire, fire spreads, fire hot. Fire isn't impassable at all, but fire HOT. Should be able to fire without igniting fuel (aka spread oil)
+///1.1.6 ....swords?
+///1.1.7 Bad grenade launcher - Inaccurately random, small enough aoe compared to target that you aren't guaranteed to hit. Don't... explode things, just shread them mercilessly
+///1.1.8 Ok grenade launcher - Less random, large enough aoe compared to target that you're guaranteed a hit. Still shred vs explode just for fun
+///1.1.9 Proper sniper, penetrate walls and targets
+///1.1.10 Bad SMG. Higher tech than rifles. Decent dps, poor damage, poor range, ok accuracy. Compromise between shotgun and assault rifle, so they have a bit more utility but effective up close. Hold a building type weapon, not open country
+///1.1.11 Bad LMG. Fair ammo, terrible accuracy. More for suppression than damage at range. More for self cover
+///1.1.12 Ok LMG. Loads of ammo, still poor accuracy. Still more for suppression, but will eat into exposed enemies
+///1.1.13 DMR of some sort. Compromise rapid fire sniper - accurate, rapid fire, less pinpoint damage than a sniper. Two shots for a leg, not one, but one for a lightly damaged leg
+///1.1.14 Anti Materiel rifle. Whatever you point it at dies, effective against armoured enemies. High damage, high range, really bad everything else
+
+///SPECIAL GUNS. Minimal numbers? Some drawbacks? Heavy weight!
+///1.1.0 Autocannon. Aoe shots
+///1.1.1 Gauss rifle. Pew pew high damage sniper
+///1.1.2 Rocket launcher. Big boom. Probably disposable equipment
+
+
+///1.2 Vague Backup Weapons
+///1.2.1 Basic starting knife - bad. you are going to die. Very light. Maybe forced to take. Utility - used for chopping things up. Knife upgrades should actually be more utility
+///1.2.2 better knives - you're still going to die
+///1.2.3 Pistol - good ammo, bad damage, bad dps, ok range but less than most primaries (smg range). Improvements upgrade damage, and dps. Minimal weight, so generally you take one
+///1.2.4 Double barreled shotgun. Incredible damage, absurdly bad range, terrible dps, low ammo
+
+///1.3 Utility Guns
+///1.3.1 Harpoon gun. Big disabling bolt, heavy so big slowdown. Low damage and not great range. Slightly further than smg. ...rope? Primarily a disabling weapon, a bolt through the leg of an arachnid is a huge fuckup for them
+///1.3.2 Foam launcher. Bit like flamethrower. Make decision on: flammability, and solubility. Enemies walking through foam are slowed. Enemies hit by foam are temporarily disabled
+///1.3.3 Mortar. Very inaccurate, very long range, medium explosion radius - basically random destruction. Should be able to guarantee it can't land < some range to avoid unfun FF problems, unless intentional. Good for injured personnel
+///1.3.4 Water Gun. Basically a small firehose. Pushes back enemies, but mainly puts out fires
+
+///1.4 Equipment. The meaty bit
+///1.4.1 Sentry gun. All kinds, should get very early on, maybe even a first tier research. Really critical to fun
+///1.4.2 Medpack
+///1.4.3 Head/chest/arm/leg armour. From nothing to fabric to basic materials to more advanced construction, to full awesome suits. Upgrades to carry capacity at the expense of armour, but having armour overall shouldn't be a negative (aka nudie is not a goodie)
+///1.4.4 Prosthetics. Wooden to full replacements, to cybernetic upgrades. Shouldn't generally have a downside beyond itself (aka no like oh no emps shut down the arms)
+///1.4.5 Wall erection. First walls/doors, then walls with gun slits, then emplacements (raised platforms, semi protected). Better materials, stronger emplacements. Choose between loads of weak, or smaller strong. Pick between full height or half height (chest high)
+///1.4.6 Barbed wire
+///1.4.7 Wall reinforcement and repair kits. Maybe goes under building walls
+///1.4.8 Spike traps (aka barbed wire)
+///1.4.9 Proximity Mines, aka grenades with automatic triggers on
+///1.4.10 Tripwire Mines, aka grenades with automatic triggers on. Upgrades make them laser so faster placing.
+///1.4.11 Timed Mines. Really just have tripwires, timers, and proximity sensors and then when you use them, you use them with a grenade
+///1.4.11 Utility tool. Ultimate for patching up walls, tearing things down, messing with shit generally
+///1.4.12 Flashlight? Maybe just a toggleable passive
+///1.4.13 Physical Distraction (cardboard cutout soldiers)
+
+///1.5 GRENADES YEEE. All of these should be fireable out of a GL, or used as mines, unless specifically not. Either that or most can't be GL'd or mortard, but most can be otherwise improvised
+///1.5.1 cheap and dirty molotovs right from the bat. Always good. Can be thrown unlit
+///1.5.2 Incendiary grenades
+///1.5.3 cheap and dirty improvised frags. But really fragment not just detonate. Large splinter radius, small kill radius
+///1.5.4 Proper frags. Above but more boom
+///1.5.5 Foam grenades
+///1.5.6 Oil grenades
+///1.5.7 Water grenades
+///1.5.8 Luminous grenades - makes enemies very visible in the dark
+///1.5.9 Acid grenades? Is this getting too divinity? I mean surface manipulation in divinity is like half the game, but its not... military. Might lose aesthetic. Needs a tight military feel to it, even if you're a ragtag band
+///1.5.10 Smoke grenades
+///1.5.11 Flares
+///1.5.12 Sonic grenades (distraction)
+///1.5.13 Persistent sonic lure (3 turns or whatever)
+

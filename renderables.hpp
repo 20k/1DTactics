@@ -13,6 +13,7 @@ namespace tiles
 {
     enum types
     {
+        BASE,
         DIRT,
         GRASS,
         TREE_1,
@@ -82,7 +83,7 @@ struct playspace_manager
     float zoom = 1;
 
     vec2i level_size = {0,0};
-    std::vector<tile_object> all_tiles;
+    std::vector<std::vector<tile_object>> all_tiles;
 
     void create_level(vec2i dim, level_info::types type);
 
