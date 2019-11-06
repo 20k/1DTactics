@@ -389,7 +389,7 @@ void playspace_manager::tick(double dt_s)
         playing_move = found;
     }
 
-    #define TIME_PER_TILE_MOVED 0.2
+    #define TIME_PER_TILE_MOVED 0.1
 
     if(playing_move.has_value())
     {

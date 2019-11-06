@@ -172,6 +172,7 @@ int main(int argc, char* argv[])
             level.draw(win);
         }
 
+
         ImGui::Begin("Test");
 
         if(((level.turn % 2) == 0) && ImGui::Button("End Turn"))
@@ -183,6 +184,7 @@ int main(int argc, char* argv[])
 
         ImGui::Render();
 
+        glFinish();
         win.setActive(false);
         glfwMakeContextCurrent(window);
 
@@ -201,6 +203,8 @@ int main(int argc, char* argv[])
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
         }
+
+        glFinish();
 
         glfwMakeContextCurrent(nullptr);
         win.setActive(true);
