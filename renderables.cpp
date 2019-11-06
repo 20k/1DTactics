@@ -323,6 +323,7 @@ unit_command enemy_step_single(playspace_manager& playspace, entity_object& to_s
     idle_move.type = unit_command::MOVE;
 
     idle_move.move_destination = to_step.tilemap_pos + (vec2i){5, 0};
+    idle_move.unit_id = to_step.my_id;
 
     return idle_move;
 }
@@ -386,6 +387,49 @@ void playspace_manager::tick(double dt_s)
         }
 
         playing_move = found;
+    }
+
+    #define TIME_PER_TILE_MOVED 0.5
+
+    if(playing_move.has_value())
+    {
+        unit_command& current = playing_move.value();
+        current.elapsed_time_s += dt_s;
+
+        if(current.type == unit_command::END)
+        {
+            if(is_in_hostile_turn)
+            {
+                step_enemies = true;
+                playing_move = std::nullopt;
+            }
+        }
+        else if(current.type == unit_command::MOVE)
+        {
+            if(current.move_destination == entities[current.unit_id].tilemap_pos)
+            {
+                current.type = unit_command::END;
+            }
+            else if(current.elapsed_time_s >= TIME_PER_TILE_MOVED)
+            {
+                ///just move it towards destination, a* later
+                vec2i istart = entities[current.unit_id].tilemap_pos;
+                vec2i iend = clamp(current.move_destination, (vec2i){0, 0}, level_size);
+
+                vec2i idiff = iend - istart;
+
+                vec2f norm = (vec2f){idiff.x(), idiff.y()}.norm();
+
+                if(norm.largest_elem() <= 0)
+                    throw std::runtime_error("Bad largest elem");
+
+                norm = norm / norm.largest_elem();
+
+                move_entity_to(entities[current.unit_id], entities[current.unit_id].tilemap_pos + (vec2i){norm.x(), norm.y()});
+
+                //entities[current.unit_id].tilemap_pos += (vec2i){norm.x(), norm.y()};
+            }
+        }
     }
 }
 
@@ -501,13 +545,14 @@ uint64_t playspace_manager::add_entity(vec2i where, tiles::types type, ai_dispos
     obj.obj = robj;
     obj.passable = false;
 
-    all_tiles[where.y() * level_size.x() + where.x()].push_back(obj);
-
     entity_object eobj;
     eobj.tilemap_pos = where;
     eobj.disposition = ai_type;
 
     eobj.my_id = entity_gid++;
+    obj.entity_id = eobj.my_id;
+
+    all_tiles[where.y() * level_size.x() + where.x()].push_back(obj);
 
     entities[eobj.my_id] = eobj;
 
@@ -522,4 +567,36 @@ void playspace_manager::make_squad(const std::vector<uint64_t>& ids)
     {
         entities[i].squad_id = nid;
     }
+}
+
+void playspace_manager::move_entity_to(entity_object& object, vec2i destination)
+{
+    vec2i start = object.tilemap_pos;
+
+    if(start.x() < 0 || start.y() < 0 || start.x() >= level_size.x() || start.y() >= level_size.y())
+        throw std::runtime_error("OOB\n");
+
+    if(destination.x() < 0 || destination.y() < 0 || destination.x() >= level_size.x() || destination.y() >= level_size.y())
+        throw std::runtime_error("OOB2\n");
+
+    auto& tile_list = all_tiles[start.y() * level_size.x() + start.x()];
+
+    std::optional<tile_object> found;
+
+    for(int i=0; i < (int)tile_list.size(); i++)
+    {
+        if(tile_list[i].entity_id.has_value() && tile_list[i].entity_id.value() == object.my_id)
+        {
+            found = tile_list[i];
+
+            tile_list.erase(tile_list.begin() + i);
+            break;
+        }
+    }
+
+    if(found == std::nullopt)
+        throw std::runtime_error("Nullopt in move_entity_to");
+
+    object.tilemap_pos = destination;
+    all_tiles[destination.y() * level_size.x() + destination.x()].push_back(found.value());
 }

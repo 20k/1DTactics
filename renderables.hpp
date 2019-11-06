@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <SFML/Graphics.hpp>
+#include <optional>
 
 #define TILE_PIX 16
 #define TILE_SEP 1
@@ -84,6 +85,7 @@ struct tile_object
     renderable_object obj;
     float path_cost = 1;
     bool passable = true;
+    std::optional<uint64_t> entity_id;
 };
 
 struct entity_object
@@ -105,8 +107,10 @@ struct unit_command
         END,
     };
 
+    uint64_t unit_id = -1;
     vec2i move_destination;
     types type = types::END;
+    double elapsed_time_s = 0;
 };
 
 struct playspace_manager
@@ -138,8 +142,9 @@ struct playspace_manager
     uint64_t add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type);
     void make_squad(const std::vector<uint64_t>& ids);
 
-
     std::optional<unit_command> playing_move;
+
+    void move_entity_to(entity_object& object, vec2i destination);
 };
 
 #endif // RENDERABLES_HPP_INCLUDED
