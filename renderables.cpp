@@ -389,7 +389,7 @@ void playspace_manager::tick(double dt_s)
         playing_move = found;
     }
 
-    #define TIME_PER_TILE_MOVED 0.5
+    #define TIME_PER_TILE_MOVED 0.2
 
     if(playing_move.has_value())
     {
@@ -426,6 +426,8 @@ void playspace_manager::tick(double dt_s)
                 norm = norm / norm.largest_elem();
 
                 move_entity_to(entities[current.unit_id], entities[current.unit_id].tilemap_pos + (vec2i){norm.x(), norm.y()});
+
+                current.elapsed_time_s -= TIME_PER_TILE_MOVED;
 
                 //entities[current.unit_id].tilemap_pos += (vec2i){norm.x(), norm.y()};
             }

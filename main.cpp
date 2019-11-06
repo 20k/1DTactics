@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
 
         ImGui::Begin("Test");
 
-        if(ImGui::Button("End Turn"))
+        if(((level.turn % 2) == 0) && ImGui::Button("End Turn"))
         {
             level.next_turn();
         }
