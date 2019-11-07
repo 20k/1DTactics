@@ -412,6 +412,21 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
             vec2i spos = tile_opt.value();
 
             printf("FOUND TILE %i %i\n", spos.x(), spos.y());
+
+            if(ImGui::IsMouseClicked(0, false))
+            {
+                selected_tile = spos;
+            }
+        }
+
+        if(ImGui::IsMouseClicked(1, false))
+        {
+            selected_tile = std::nullopt;
+        }
+
+        if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE, false))
+        {
+            selected_tile = std::nullopt;
         }
     }
 
@@ -513,7 +528,8 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
         {
             bool depress = false;
 
-            if(mouse_tile_opt.has_value() && mouse_tile_opt == (vec2i){x, y})
+            if((mouse_tile_opt.has_value() && mouse_tile_opt == (vec2i){x, y}) ||
+               (selected_tile.has_value() && selected_tile == (vec2i){x, y}))
             {
                 depress = true;
             }

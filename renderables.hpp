@@ -148,6 +148,8 @@ struct playspace_manager
 
     std::optional<std::vector<vec2i>> a_star(vec2i start, vec2i finish);
     std::optional<vec2i> screen_to_tile(vec2f screen_pos, vec2f screen_dimensions);
+
+    std::optional<vec2i> selected_tile;
 };
 
 #endif // RENDERABLES_HPP_INCLUDED
