@@ -108,7 +108,7 @@ struct unit_command
     };
 
     uint64_t unit_id = -1;
-    vec2i move_destination;
+    std::vector<vec2i> move_path;
     types type = types::END;
     double elapsed_time_s = 0;
 };

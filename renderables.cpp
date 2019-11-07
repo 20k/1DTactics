@@ -323,8 +323,19 @@ unit_command enemy_step_single(playspace_manager& playspace, entity_object& to_s
     unit_command idle_move;
     idle_move.type = unit_command::MOVE;
 
-    idle_move.move_destination = to_step.tilemap_pos + (vec2i){5, 0};
+    std::optional move_path = playspace.a_star(to_step.tilemap_pos, to_step.tilemap_pos + (vec2i){5, 0});
+
+    //idle_move.move_destination = to_step.tilemap_pos + (vec2i){5, 0};
     idle_move.unit_id = to_step.my_id;
+
+    if(move_path == std::nullopt)
+    {
+        idle_move.type = unit_command::END;
+    }
+    else
+    {
+        idle_move.move_path = move_path.value();
+    }
 
     return idle_move;
 }
@@ -407,14 +418,14 @@ void playspace_manager::tick(double dt_s)
         }
         else if(current.type == unit_command::MOVE)
         {
-            if(current.move_destination == entities[current.unit_id].tilemap_pos)
+            if(current.move_path.size() == 0)
             {
                 current.type = unit_command::END;
             }
             else if(current.elapsed_time_s >= TIME_PER_TILE_MOVED)
             {
                 ///just move it towards destination, a* later
-                vec2i istart = entities[current.unit_id].tilemap_pos;
+                /*vec2i istart = entities[current.unit_id].tilemap_pos;
                 vec2i iend = clamp(current.move_destination, (vec2i){0, 0}, level_size);
 
                 vec2i idiff = iend - istart;
@@ -424,9 +435,15 @@ void playspace_manager::tick(double dt_s)
                 if(norm.largest_elem() <= 0)
                     throw std::runtime_error("Bad largest elem");
 
-                norm = norm / norm.largest_elem();
+                norm = norm / norm.largest_elem();*/
 
-                move_entity_to(entities[current.unit_id], entities[current.unit_id].tilemap_pos + (vec2i){norm.x(), norm.y()});
+                assert(current.move_path.size() > 0);
+
+                vec2i next_pos = current.move_path[0];
+
+                current.move_path.erase(current.move_path.begin());
+
+                move_entity_to(entities[current.unit_id], next_pos);
 
                 current.elapsed_time_s -= TIME_PER_TILE_MOVED;
 
