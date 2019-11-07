@@ -174,7 +174,7 @@ std::optional<std::vector<vec2i>> a_star(playspace_manager& play, vec2i first, v
     if(first == finish)
         return {};
 
-    auto found = get_shortest_path<vec2i>(play, {first}, {finish}, 1000);
+    auto found = get_shortest_path<vec2i>(play, {first}, {finish}, 10000);
 
     if(found.size() == 0)
         return std::nullopt;
