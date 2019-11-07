@@ -143,6 +143,9 @@ int main(int argc, char* argv[])
     {
         glfwPollEvents();
 
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+
         if(glfwWindowShouldClose(window))
             running = false;
 
@@ -161,7 +164,7 @@ int main(int argc, char* argv[])
 
         auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - screen_absolute_pos;
 
-        level.tick(ImGui::GetIO().DeltaTime);
+        level.tick(mpos, {display_w, display_h}, ImGui::GetIO().DeltaTime);
 
         {
             glfwMakeContextCurrent(nullptr);
@@ -169,7 +172,7 @@ int main(int argc, char* argv[])
             win.resetGLStates();
 
             win.clear();
-            level.draw(win);
+            level.draw(win, mpos);
         }
 
 
@@ -187,9 +190,6 @@ int main(int argc, char* argv[])
         glFinish();
         win.setActive(false);
         glfwMakeContextCurrent(window);
-
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
 
         glViewport(0, 0, display_w, display_h);
         glDrawBuffer(GL_BACK);

@@ -131,9 +131,9 @@ struct playspace_manager
 
     void create_level(vec2i dim, level_info::types type);
 
-    void tick(double dt_s);
+    void tick(vec2f mpos, vec2f screen_dimensions, double dt_s);
     void next_turn();
-    void draw(sf::RenderTarget& win);
+    void draw(sf::RenderTarget& win, vec2f mpos);
 
     uint64_t turn = 0;
     bool step_enemies = false;
@@ -147,6 +147,7 @@ struct playspace_manager
     void move_entity_to(entity_object& object, vec2i destination);
 
     std::optional<std::vector<vec2i>> a_star(vec2i start, vec2i finish);
+    std::optional<vec2i> screen_to_tile(vec2f screen_pos, vec2f screen_dimensions);
 };
 
 #endif // RENDERABLES_HPP_INCLUDED

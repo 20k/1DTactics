@@ -369,7 +369,7 @@ std::optional<unit_command> enemy_step(playspace_manager& playspace)
     return std::nullopt;
 }
 
-void playspace_manager::tick(double dt_s)
+void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 {
     vec2f dir;
 
@@ -402,6 +402,17 @@ void playspace_manager::tick(double dt_s)
         }
 
         playing_move = found;
+    }
+
+    {
+        auto tile_opt = screen_to_tile(mpos, screen_dimensions);
+
+        if(tile_opt != std::nullopt)
+        {
+            vec2i spos = tile_opt.value();
+
+            printf("FOUND TILE %i %i\n", spos.x(), spos.y());
+        }
     }
 
     #define TIME_PER_TILE_MOVED 0.1
@@ -473,7 +484,7 @@ void playspace_manager::next_turn()
     }
 }
 
-void playspace_manager::draw(sf::RenderTarget& win)
+void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 {
     std::vector<sf::Vertex> vertices;
     vertices.reserve(level_size.y() * level_size.x() * 6);
@@ -494,10 +505,19 @@ void playspace_manager::draw(sf::RenderTarget& win)
     y_start = clamp(y_start, 0, level_size.y());
     y_end = clamp(y_end, 0, level_size.y());
 
+    auto mouse_tile_opt = screen_to_tile(mpos, {win.getSize().x, win.getSize().y});
+
     for(int y=y_start; y < level_size.y() && y < y_end; y++)
     {
         for(int x=x_start; x < level_size.x() && x < x_end; x++)
         {
+            bool depress = false;
+
+            if(mouse_tile_opt.has_value() && mouse_tile_opt == (vec2i){x, y})
+            {
+                depress = true;
+            }
+
             const std::vector<tile_object>& renderables = all_tiles.at(y * level_size.x() + x);
 
             for(int id = 0; id < (int)renderables.size(); id++)
@@ -525,6 +545,29 @@ void playspace_manager::draw(sf::RenderTarget& win)
                 vec2f br = real_pos + (vec2f){TILE_PIX/2, TILE_PIX/2};
                 vec2f bl = real_pos + (vec2f){-TILE_PIX/2, TILE_PIX/2};
 
+                #ifdef DEPRESS
+                ///me_irl
+                constexpr float depression_constant_px = -3;
+
+                if(depress)
+                {
+                    tl.y() += depression_constant_px;
+                    tr.y() += depression_constant_px;
+                    br.y() += depression_constant_px;
+                    bl.y() += depression_constant_px;
+                }
+                #endif // DEPRESS
+
+                vec4f base_colour = renderable.lin_colour;
+
+                #define HIGHLIGHT
+                #ifdef HIGHLIGHT
+                if(depress && id == 0)
+                {
+                    base_colour = {1,1,1,1};
+                }
+                #endif // HIGHLIGHT
+
                 vec2i texture_coordinate = renderable.tile_id * (TILE_PIX + TILE_SEP);
 
                 vec2f tltx = {texture_coordinate.x(), texture_coordinate.y()};
@@ -535,10 +578,10 @@ void playspace_manager::draw(sf::RenderTarget& win)
                 float shade = 0.05;
 
                 ///this is wrong because its not handling alpha correctly
-                vec4f tl_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 + shade) * brightness, 0, 1));
-                vec4f tr_col = lin_to_srgb_approx(renderable.lin_colour * brightness);
-                vec4f br_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 - shade) * brightness, 0, 1));
-                vec4f bl_col = lin_to_srgb_approx(renderable.lin_colour * brightness);
+                vec4f tl_col = lin_to_srgb_approx(clamp(base_colour*(1 + shade) * brightness, 0, 1));
+                vec4f tr_col = lin_to_srgb_approx(base_colour * brightness);
+                vec4f br_col = lin_to_srgb_approx(clamp(base_colour*(1 - shade) * brightness, 0, 1));
+                vec4f bl_col = lin_to_srgb_approx(base_colour * brightness);
 
                 sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z() * 255, tl_col.w() * 255);
                 sf::Color sfcol_tr(tr_col.x() * 255, tr_col.y() * 255, tr_col.z() * 255, tr_col.w() * 255);
@@ -638,4 +681,18 @@ void playspace_manager::move_entity_to(entity_object& object, vec2i destination)
 std::optional<std::vector<vec2i>> playspace_manager::a_star(vec2i start, vec2i finish)
 {
     return ::a_star(*this, start, finish);
+}
+
+std::optional<vec2i> playspace_manager::screen_to_tile(vec2f screen_pos, vec2f screen_dimensions)
+{
+    vec2f relative = screen_pos - screen_dimensions/2.f + camera_pos;
+
+    vec2f tile_coord = round(relative / (float)TILE_PIX);
+
+    vec2i as_int = (vec2i){tile_coord.x(), tile_coord.y()};
+
+    if(as_int.x() < 0 || as_int.y() < 0 || as_int.x() >= level_size.x() || as_int.y() >= level_size.y())
+        return std::nullopt;
+
+    return as_int;
 }
