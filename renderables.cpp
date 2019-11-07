@@ -350,6 +350,9 @@ std::optional<unit_command> enemy_step(playspace_manager& playspace)
     //for(auto& i : entity_object)
     for(auto it = playspace.entities.begin(); it != playspace.entities.end(); it++)
     {
+        if(it->second.disposition == ai_disposition::NONE)
+            continue;
+
         if(next_exec == cur_exec)
         {
             return enemy_step_single(playspace, it->second);
