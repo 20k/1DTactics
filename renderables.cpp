@@ -495,9 +495,20 @@ void playspace_manager::draw(sf::RenderTarget& win)
     {
         for(int x=x_start; x < level_size.x() && x < x_end; x++)
         {
-            for(const tile_object& tobj : all_tiles.at(y * level_size.x() + x))
+            const std::vector<tile_object>& renderables = all_tiles.at(y * level_size.x() + x);
+
+            for(int id = 0; id < (int)renderables.size(); id++)
             {
+                const tile_object& tobj = renderables[id];
+
                 const renderable_object& renderable = tobj.obj;
+
+                float brightness = 1;
+
+                if(id > 0 && id != (int)renderables.size() - 1 && renderables.size() > 2)
+                {
+                    brightness = 0.3;
+                }
 
                 vec2f logical_pos = (vec2f){x, y} * TILE_PIX;
                 vec2f real_pos = logical_pos - camera_pos;
@@ -521,10 +532,10 @@ void playspace_manager::draw(sf::RenderTarget& win)
                 float shade = 0.05;
 
                 ///this is wrong because its not handling alpha correctly
-                vec4f tl_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 + shade), 0, 1));
-                vec4f tr_col = lin_to_srgb_approx(renderable.lin_colour);
-                vec4f br_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 - shade), 0, 1));
-                vec4f bl_col = lin_to_srgb_approx(renderable.lin_colour);
+                vec4f tl_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 + shade) * brightness, 0, 1));
+                vec4f tr_col = lin_to_srgb_approx(renderable.lin_colour * brightness);
+                vec4f br_col = lin_to_srgb_approx(clamp(renderable.lin_colour*(1 - shade) * brightness, 0, 1));
+                vec4f bl_col = lin_to_srgb_approx(renderable.lin_colour * brightness);
 
                 sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z() * 255, tl_col.w() * 255);
                 sf::Color sfcol_tr(tr_col.x() * 255, tr_col.y() * 255, tr_col.z() * 255, tr_col.w() * 255);
