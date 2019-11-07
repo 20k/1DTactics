@@ -3,6 +3,7 @@
 #include <iostream>
 #include <imgui/imgui.h>
 #include <GLFW/glfw3.h>
+#include "pathfinding.hpp"
 
 template<typename T>
 void add_to(T& in, vec2i loc)
@@ -601,4 +602,9 @@ void playspace_manager::move_entity_to(entity_object& object, vec2i destination)
 
     object.tilemap_pos = destination;
     all_tiles[destination.y() * level_size.x() + destination.x()].push_back(found.value());
+}
+
+std::optional<std::vector<vec2i>> playspace_manager::a_star(vec2i start, vec2i finish)
+{
+    return ::a_star(*this, start, finish);
 }

@@ -66,6 +66,9 @@
 		<Unit filename="deps/imgui/misc/freetype/imgui_freetype.h" />
 		<Unit filename="design.txt" />
 		<Unit filename="main.cpp" />
+		<Unit filename="pathfinding.cpp" />
+		<Unit filename="pathfinding.hpp" />
+		<Unit filename="renderables.cpp" />
 		<Unit filename="renderables.hpp" />
 		<Extensions>
 			<code_completion />

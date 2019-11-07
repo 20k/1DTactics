@@ -145,6 +145,8 @@ struct playspace_manager
     std::optional<unit_command> playing_move;
 
     void move_entity_to(entity_object& object, vec2i destination);
+
+    std::optional<std::vector<vec2i>> a_star(vec2i start, vec2i finish);
 };
 
 #endif // RENDERABLES_HPP_INCLUDED
