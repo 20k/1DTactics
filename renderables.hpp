@@ -111,6 +111,7 @@ struct unit_command
     std::vector<vec2i> move_path;
     types type = types::END;
     double elapsed_time_s = 0;
+    bool update_focus = false;
 };
 
 struct playspace_manager
@@ -143,6 +144,7 @@ struct playspace_manager
     void make_squad(const std::vector<uint64_t>& ids);
 
     std::optional<unit_command> playing_move;
+    std::optional<unit_command> player_building_move;
 
     void move_entity_to(entity_object& object, vec2i destination);
 

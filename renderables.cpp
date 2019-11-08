@@ -315,6 +315,8 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
         auto e_3 = add_entity({13, 13}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
 
         make_squad({e_1, e_2, e_3});
+
+        auto p_1 = add_entity({16, 15}, tiles::SOLDIER, ai_disposition::NONE);
     }
 }
 
@@ -369,6 +371,13 @@ std::optional<unit_command> enemy_step(playspace_manager& playspace)
     return std::nullopt;
 }
 
+std::optional<unit_command> player_step(playspace_manager& playspace)
+{
+
+
+    return std::nullopt;
+}
+
 void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 {
     vec2f dir;
@@ -385,6 +394,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
     camera_pos += dir * (dt_s * 1000);
 
     bool is_in_hostile_turn = (turn % 2) == 1;
+    bool is_in_my_turn = (turn % 2) == 0;
 
     if(is_in_hostile_turn && step_enemies)
     {
@@ -404,6 +414,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
         playing_move = found;
     }
 
+    if(!player_building_move.has_value())
     {
         auto tile_opt = screen_to_tile(mpos, screen_dimensions);
 
@@ -413,21 +424,85 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
             printf("FOUND TILE %i %i\n", spos.x(), spos.y());
 
-            if(ImGui::IsMouseClicked(0, false))
+            if(ImGui::IsMouseClicked(0, false) && !ImGui::IsAnyWindowHovered())
             {
                 selected_tile = spos;
             }
         }
 
-        if(ImGui::IsMouseClicked(1, false))
+        if(ImGui::IsMouseClicked(1, false) && !ImGui::IsAnyWindowHovered())
         {
             selected_tile = std::nullopt;
+            player_building_move = std::nullopt;
         }
 
         if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE, false))
         {
             selected_tile = std::nullopt;
+            player_building_move = std::nullopt;
         }
+    }
+
+    if(selected_tile.has_value() && is_in_my_turn)
+    {
+        for(const tile_object& obj : all_tiles[selected_tile.value().y() * level_size.x() + selected_tile.value().x()])
+        {
+            if(!obj.entity_id.has_value())
+                continue;
+
+            if(entities[obj.entity_id.value()].disposition != ai_disposition::NONE)
+                continue;
+
+            ImGui::Begin("Actions");
+
+            if(ImGui::Button("Move"))
+            {
+                unit_command command;
+                command.type = unit_command::MOVE;
+                command.unit_id = obj.entity_id.value();
+
+                player_building_move = command;
+            }
+
+            ImGui::SameLine();
+
+            if(ImGui::Button("Shoot"))
+            {
+
+            }
+
+            ImGui::End();
+        }
+    }
+
+    if(player_building_move.has_value())
+    {
+        unit_command& val = player_building_move.value();
+
+        auto mpos_opt = screen_to_tile(mpos, screen_dimensions);
+
+        if(mpos_opt.has_value())
+        {
+            if(val.type == unit_command::MOVE)
+            {
+                const entity_object& obj = entities[val.unit_id];
+
+                std::optional<std::vector<vec2i>> path = a_star(obj.tilemap_pos, mpos_opt.value());
+
+                if(path.has_value() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyWindowHovered())
+                {
+                    val.move_path = path.value();
+                    val.update_focus = true;
+                    playing_move = val;
+                    player_building_move = std::nullopt;
+                }
+            }
+        }
+    }
+
+    if(!is_in_hostile_turn)
+    {
+        player_step(*this);
     }
 
     #define TIME_PER_TILE_MOVED 0.1
@@ -476,6 +551,11 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
                 current.elapsed_time_s -= TIME_PER_TILE_MOVED;
 
+                if(current.update_focus)
+                {
+                    selected_tile = next_pos;
+                }
+
                 //entities[current.unit_id].tilemap_pos += (vec2i){norm.x(), norm.y()};
             }
         }
@@ -497,6 +577,8 @@ void playspace_manager::next_turn()
         step_enemies = true;
         next_entity = 0;
     }
+
+    player_building_move = std::nullopt;
 }
 
 void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
