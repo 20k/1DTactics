@@ -186,3 +186,142 @@ std::optional<std::vector<vec2i>> a_star(playspace_manager& play, vec2i first, v
     return found;
 }
 
+std::vector<std::pair<vec2i, float>> dijkstras(playspace_manager& play, vec2i start, float max_cost)
+{
+    int fmax_cost = ceil(max_cost) + 2;
+
+    vec2i min_dims = start - (vec2i){fmax_cost, fmax_cost};
+    vec2i max_dims = start + (vec2i){fmax_cost, fmax_cost};
+
+    min_dims = clamp(min_dims, (vec2i){0, 0}, play.level_size);
+    max_dims = clamp(max_dims, (vec2i){0, 0}, play.level_size);
+
+    std::vector<std::pair<vec2i, float>> ret;
+    std::vector<int> skip;
+
+    int total_size = (max_dims.y() - min_dims.y()) * (max_dims.x() - min_dims.x());
+
+    ret.resize(total_size);
+    skip.resize(total_size);
+
+    int awidth = max_dims.x() - min_dims.x();
+
+    for(int y=min_dims.y(); y < max_dims.y(); y++)
+    {
+        for(int x=min_dims.x(); x < max_dims.x(); x++)
+        {
+            int local_y = y - min_dims.y();
+            int local_x = x - min_dims.x();
+
+            ret[local_y * awidth + local_x].first = {x, y};
+            ret[local_y * awidth + local_x].second = FLT_MAX;
+
+            if((vec2i){x, y} == start)
+            {
+                ret[local_y * awidth + local_x].second = 0;
+            }
+        }
+    }
+
+    while(1)
+    {
+        vec2i current_sys = {0,0};
+        float next_val = FLT_MAX;
+        int which = -1;
+
+        for(size_t i=0; i < ret.size(); i++)
+        {
+            if(skip[i])
+                continue;
+
+            if(ret[i].second < next_val)
+            {
+                current_sys = ret[i].first;
+                next_val = ret[i].second;
+                which = i;
+            }
+        }
+
+        if(which == -1)
+            break;
+
+        skip[which] = 1;
+
+        //int local_x = current_sys.x() - min_dims.x();
+        //int local_y = current_sys.y() - min_dims.y();
+
+        //float score = ret[local_y * awidth + local_x].second;
+
+        float score = next_val;
+
+        std::vector<vec2i> flinks;
+        flinks.reserve(8);
+
+        auto check_apply = [&](vec2i offset)
+        {
+            if(offset.x() < 0 || offset.y() < 0 || offset.x() >= play.level_size.x() || offset.y() >= play.level_size.y())
+                return;
+
+            if(offset.x() < min_dims.x() || offset.y() < min_dims.y() || offset.x() >= max_dims.x() || offset.y() >= max_dims.y())
+                return;
+
+            auto& found = play.all_tiles[offset.y() * play.level_size.x() + offset.x()];
+
+            for(const tile_object& i : found)
+            {
+                if(!i.passable)
+                    return;
+            }
+
+            flinks.push_back(offset);
+        };
+
+        check_apply(current_sys + (vec2i){-1, 0});
+        check_apply(current_sys + (vec2i){1, 0});
+        check_apply(current_sys + (vec2i){0, -1});
+        check_apply(current_sys + (vec2i){0, 1});
+        check_apply(current_sys + (vec2i){-1, -1});
+        check_apply(current_sys + (vec2i){1, -1});
+        check_apply(current_sys + (vec2i){1, 1});
+        check_apply(current_sys + (vec2i){-1, 1});
+
+        for(const vec2i& next_sys : flinks)
+        {
+            float next_score = score + sqrtf((next_sys - current_sys).squared_length());
+
+            int next_local_x = next_sys.x() - min_dims.x();
+            int next_local_y = next_sys.y() - min_dims.y();
+
+            if(next_score >= ret[next_local_y * awidth + next_local_x].second)
+                continue;
+
+            ret[next_local_y * awidth + next_local_x].second = next_score;
+
+            //sorted.push_back({next_sys, found_gscore});
+
+            /*for(auto& i : sorted)
+            {
+                if(i.first == next_sys)
+                {
+                    //i.second = found_gscore + heuristic(ctx, next_sys, fin);
+                    i.second = found_gscore;
+                    break;
+                }
+            }*/
+
+
+
+            /*std::sort(sorted.begin(), sorted.begin(),
+                  [](const std::pair<T, float>& p1, const std::pair<T, float>& p2){return p1.second < p2.second;});
+
+            num_explored++;
+
+            if(num_explored > cap && cap != -1)
+                return ret;*/
+
+
+        }
+    }
+
+    return ret;
+}

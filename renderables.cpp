@@ -216,6 +216,14 @@ vec4f special_colour_randomisation(vec4f rcol, vec2i tile_id, tiles::types type)
     return rcol;
 }
 
+void playspace_manager::generate_move_information()
+{
+    for(auto& i : entities)
+    {
+        i.second.cached_dijkstras = dijkstras(*this, i.second.tilemap_pos, i.second.max_move_distance);
+    }
+}
+
 void playspace_manager::create_level(vec2i dim, level_info::types type)
 {
     static std::minstd_rand rng;
@@ -318,6 +326,8 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
 
         auto p_1 = add_entity({16, 15}, tiles::SOLDIER, ai_disposition::NONE);
     }
+
+    generate_move_information();
 }
 
 unit_command enemy_step_single(playspace_manager& playspace, entity_object& to_step)
@@ -391,6 +401,8 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
     if(ImGui::IsKeyDown(GLFW_KEY_A))
         dir.x() -= 1;
 
+    bool can_click = !ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered();
+
     camera_pos += dir * (dt_s * 1000);
 
     bool is_in_hostile_turn = (turn % 2) == 1;
@@ -424,13 +436,13 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
             printf("FOUND TILE %i %i\n", spos.x(), spos.y());
 
-            if(ImGui::IsMouseClicked(0, false) && !ImGui::IsAnyWindowHovered())
+            if(ImGui::IsMouseClicked(0, false) && can_click)
             {
                 selected_tile = spos;
             }
         }
 
-        if(ImGui::IsMouseClicked(1, false) && !ImGui::IsAnyWindowHovered())
+        if(ImGui::IsMouseClicked(1, false) && can_click)
         {
             selected_tile = std::nullopt;
             player_building_move = std::nullopt;
@@ -489,7 +501,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
                 std::optional<std::vector<vec2i>> path = a_star(obj.tilemap_pos, mpos_opt.value());
 
-                if(path.has_value() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyWindowHovered())
+                if(path.has_value() && ImGui::IsMouseClicked(0) && can_click)
                 {
                     val.move_path = path.value();
                     val.update_focus = true;
@@ -517,8 +529,11 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
             if(is_in_hostile_turn)
             {
                 step_enemies = true;
-                playing_move = std::nullopt;
             }
+
+            playing_move = std::nullopt;
+
+            generate_move_information();
         }
         else if(current.type == unit_command::MOVE)
         {
@@ -579,6 +594,7 @@ void playspace_manager::next_turn()
     }
 
     player_building_move = std::nullopt;
+    generate_move_information();
 }
 
 void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
@@ -705,6 +721,39 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
     states.texture = &spritemap;
 
     win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
+
+    if(selected_tile.has_value() && !playing_move.has_value())
+    {
+        for(tile_object& tile : all_tiles[selected_tile.value().y() * level_size.x() + selected_tile.value().x()])
+        {
+            if(!tile.entity_id.has_value())
+                continue;
+
+            sf::RectangleShape shape;
+            shape.setSize({TILE_PIX - 4, TILE_PIX - 4});
+            shape.setOrigin({TILE_PIX/2 - 2, TILE_PIX/2 - 2});
+            shape.setFillColor(sf::Color(0,0,0,0));
+            shape.setOutlineColor(sf::Color(255, 255, 255, 60));
+            shape.setOutlineThickness(1);
+
+            entity_object& entity = entities[tile.entity_id.value()];
+
+            const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras;
+
+            for(auto& i : dijkstra_info)
+            {
+                if(i.second > entity.max_move_distance)
+                    continue;
+
+                vec2i pos = i.first;
+
+                vec2f rpos = tile_to_screen(pos, window_half_dim*2);
+
+                shape.setPosition(rpos.x(), rpos.y());
+                win.draw(shape, states);
+            }
+        }
+    }
 }
 
 uint64_t playspace_manager::add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type)
@@ -793,4 +842,11 @@ std::optional<vec2i> playspace_manager::screen_to_tile(vec2f screen_pos, vec2f s
         return std::nullopt;
 
     return as_int;
+}
+
+vec2f playspace_manager::tile_to_screen(vec2i tile_pos, vec2f screen_dimensions)
+{
+    vec2f relative = (vec2f){tile_pos.x(), tile_pos.y()} * TILE_PIX - camera_pos + screen_dimensions/2.f;
+
+    return relative;
 }

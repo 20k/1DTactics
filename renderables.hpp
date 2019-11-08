@@ -94,8 +94,11 @@ struct entity_object
     uint64_t my_id = -1;
     bool finished_turn = false;
     size_t squad_id = -1;
+    float max_move_distance = 10;
 
     ai_disposition::types disposition = ai_disposition::NONE;
+
+    std::vector<std::pair<vec2i, float>> cached_dijkstras;
 };
 
 struct unit_command
@@ -130,6 +133,7 @@ struct playspace_manager
 
     level_info::types level_type = level_info::GRASS;
 
+    void generate_move_information();
     void create_level(vec2i dim, level_info::types type);
 
     void tick(vec2f mpos, vec2f screen_dimensions, double dt_s);
@@ -150,6 +154,7 @@ struct playspace_manager
 
     std::optional<std::vector<vec2i>> a_star(vec2i start, vec2i finish);
     std::optional<vec2i> screen_to_tile(vec2f screen_pos, vec2f screen_dimensions);
+    vec2f tile_to_screen(vec2i tile, vec2f screen_dimensions);
 
     std::optional<vec2i> selected_tile;
 };
