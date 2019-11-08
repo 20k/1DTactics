@@ -120,6 +120,10 @@ std::vector<T> get_shortest_path(playspace_manager& play, const std::vector<T>& 
         check_apply(current_sys + (vec2i){1, 0});
         check_apply(current_sys + (vec2i){0, -1});
         check_apply(current_sys + (vec2i){0, 1});
+        check_apply(current_sys + (vec2i){-1, -1});
+        check_apply(current_sys + (vec2i){1, -1});
+        check_apply(current_sys + (vec2i){1, 1});
+        check_apply(current_sys + (vec2i){-1, 1});
 
         for(const T& next_sys : flinks)
         {
@@ -127,7 +131,7 @@ std::vector<T> get_shortest_path(playspace_manager& play, const std::vector<T>& 
                 continue;
 
             auto looking_gscore = g_score.find(next_sys);
-            float found_gscore = g_score[current_sys] + 1;
+            float found_gscore = g_score[current_sys] + sqrtf((next_sys - current_sys).squared_length());
 
             float testing_gscore = FLT_MAX;
 
