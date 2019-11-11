@@ -153,7 +153,7 @@ struct playspace_manager
 
     void move_entity_to(entity_object& object, vec2i destination);
 
-    std::optional<std::vector<vec2i>> a_star(vec2i start, vec2i finish);
+    std::optional<std::vector<vec2i>> pathfind(vec2i start, vec2i finish, float max_path_cost);
     std::optional<vec2i> screen_to_tile(vec2f screen_pos, vec2f screen_dimensions);
     vec2f tile_to_screen(vec2i tile, vec2f screen_dimensions);
 

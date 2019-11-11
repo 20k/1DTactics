@@ -335,7 +335,9 @@ unit_command enemy_step_single(playspace_manager& playspace, entity_object& to_s
     unit_command idle_move;
     idle_move.type = unit_command::MOVE;
 
-    std::optional move_path = playspace.a_star(to_step.tilemap_pos, to_step.tilemap_pos + (vec2i){5, 0});
+    //std::optional move_path = playspace.a_star(to_step.tilemap_pos, to_step.tilemap_pos + (vec2i){5, 0});
+
+    std::optional move_path = playspace.pathfind(to_step.tilemap_pos, to_step.tilemap_pos + (vec2i){5, 0}, to_step.max_move_cost);
 
     //idle_move.move_destination = to_step.tilemap_pos + (vec2i){5, 0};
     idle_move.unit_id = to_step.my_id;
@@ -499,14 +501,19 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
             {
                 const entity_object& obj = entities[val.unit_id];
 
-                std::optional<std::vector<vec2i>> path = a_star(obj.tilemap_pos, mpos_opt.value());
+                dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, obj.max_move_cost);
 
-                if(path.has_value() && ImGui::IsMouseClicked(0) && can_click)
+                if(inf.get_path_cost_to(mpos_opt.value()) <= obj.max_move_cost)
                 {
-                    val.move_path = path.value();
-                    val.update_focus = true;
-                    playing_move = val;
-                    player_building_move = std::nullopt;
+                    std::optional<std::vector<vec2i>> path = inf.reconstruct_path(mpos_opt.value());
+
+                    if(path.has_value() && ImGui::IsMouseClicked(0) && can_click)
+                    {
+                        val.move_path = path.value();
+                        val.update_focus = true;
+                        playing_move = val;
+                        player_building_move = std::nullopt;
+                    }
                 }
             }
         }
@@ -825,9 +832,9 @@ void playspace_manager::move_entity_to(entity_object& object, vec2i destination)
     all_tiles[destination.y() * level_size.x() + destination.x()].push_back(found.value());
 }
 
-std::optional<std::vector<vec2i>> playspace_manager::a_star(vec2i start, vec2i finish)
+std::optional<std::vector<vec2i>> playspace_manager::pathfind(vec2i start, vec2i finish, float max_path_cost)
 {
-    return ::a_star(*this, start, finish);
+    return dijkstras(*this, start, max_path_cost).reconstruct_path(finish);
 }
 
 std::optional<vec2i> playspace_manager::screen_to_tile(vec2f screen_pos, vec2f screen_dimensions)

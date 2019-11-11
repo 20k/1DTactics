@@ -10,7 +10,9 @@ std::vector<T> reconstruct_path(std::map<T, T>& came_from, const T& current)
 
     std::vector<T> total_path{internal};
 
-    while(came_from[internal] != T())
+    //while(came_from[internal] != T())
+
+    while(came_from.find(internal) != came_from.end())
     {
         internal = came_from[internal];
 
@@ -22,9 +24,29 @@ std::vector<T> reconstruct_path(std::map<T, T>& came_from, const T& current)
     return total_path;
 }
 
-std::vector<vec2i> dijkstras_info::reconstruct_path(vec2i finish)
+///need to get path costs out of here
+std::optional<std::vector<vec2i>> dijkstras_info::reconstruct_path(vec2i finish)
 {
-    return ::reconstruct_path(before, finish);
+    if(start == finish)
+        return {};
+
+    auto found = ::reconstruct_path(before, finish);
+
+    if(found.size() == 0)
+        return std::nullopt;
+
+    return found;
+}
+
+float dijkstras_info::get_path_cost_to(vec2i finish)
+{
+    for(auto& i : path_costs)
+    {
+        if(i.first == finish)
+            return i.second;
+    }
+
+    return FLT_MAX;
 }
 
 template<typename T>
@@ -202,6 +224,7 @@ dijkstras_info dijkstras(playspace_manager& play, vec2i start, float max_cost)
     max_dims = clamp(max_dims, (vec2i){0, 0}, play.level_size);
 
     dijkstras_info ret;
+    ret.start = start;
     std::vector<int> skip;
 
     int total_size = (max_dims.y() - min_dims.y()) * (max_dims.x() - min_dims.x());
@@ -226,7 +249,7 @@ dijkstras_info dijkstras(playspace_manager& play, vec2i start, float max_cost)
                 ret.path_costs[local_y * awidth + local_x].second = 0;
             }
 
-            ret.before[(vec2i){x, y}] = {-1, -1};
+            //ret.before[(vec2i){x, y}] = {-1, -1};
         }
     }
 

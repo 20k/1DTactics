@@ -9,13 +9,15 @@ struct dijkstras_info
 {
     std::vector<std::pair<vec2i, float>> path_costs;
     std::map<vec2i, vec2i> before;
+    vec2i start;
 
-    std::vector<vec2i> reconstruct_path(vec2i finish);
+    std::optional<std::vector<vec2i>> reconstruct_path(vec2i finish);
+    float get_path_cost_to(vec2i finish);
 };
 
 struct playspace_manager;
 
-std::optional<std::vector<vec2i>> a_star(playspace_manager& play, vec2i first, vec2i finish);
+//std::optional<std::vector<vec2i>> a_star(playspace_manager& play, vec2i first, vec2i finish);
 
 ///returns accessible positions
 dijkstras_info dijkstras(playspace_manager& play, vec2i start, float max_cost);
