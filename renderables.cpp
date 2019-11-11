@@ -220,7 +220,7 @@ void playspace_manager::generate_move_information()
 {
     for(auto& i : entities)
     {
-        i.second.cached_dijkstras = dijkstras(*this, i.second.tilemap_pos, i.second.max_move_distance);
+        i.second.cached_dijkstras = dijkstras(*this, i.second.tilemap_pos, i.second.max_move_cost);
     }
 }
 
@@ -738,11 +738,11 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
             entity_object& entity = entities[tile.entity_id.value()];
 
-            const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras;
+            const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
 
             for(auto& i : dijkstra_info)
             {
-                if(i.second > entity.max_move_distance)
+                if(i.second > entity.max_move_cost)
                     continue;
 
                 vec2i pos = i.first;

@@ -22,6 +22,11 @@ std::vector<T> reconstruct_path(std::map<T, T>& came_from, const T& current)
     return total_path;
 }
 
+std::vector<vec2i> dijkstras_info::reconstruct_path(vec2i finish)
+{
+    return ::reconstruct_path(before, finish);
+}
+
 template<typename T>
 float heuristic(const T& start, const T& fin)
 {
@@ -186,7 +191,7 @@ std::optional<std::vector<vec2i>> a_star(playspace_manager& play, vec2i first, v
     return found;
 }
 
-std::vector<std::pair<vec2i, float>> dijkstras(playspace_manager& play, vec2i start, float max_cost)
+dijkstras_info dijkstras(playspace_manager& play, vec2i start, float max_cost)
 {
     int fmax_cost = ceil(max_cost) + 2;
 
@@ -196,12 +201,12 @@ std::vector<std::pair<vec2i, float>> dijkstras(playspace_manager& play, vec2i st
     min_dims = clamp(min_dims, (vec2i){0, 0}, play.level_size);
     max_dims = clamp(max_dims, (vec2i){0, 0}, play.level_size);
 
-    std::vector<std::pair<vec2i, float>> ret;
+    dijkstras_info ret;
     std::vector<int> skip;
 
     int total_size = (max_dims.y() - min_dims.y()) * (max_dims.x() - min_dims.x());
 
-    ret.resize(total_size);
+    ret.path_costs.resize(total_size);
     skip.resize(total_size);
 
     int awidth = max_dims.x() - min_dims.x();
@@ -213,13 +218,15 @@ std::vector<std::pair<vec2i, float>> dijkstras(playspace_manager& play, vec2i st
             int local_y = y - min_dims.y();
             int local_x = x - min_dims.x();
 
-            ret[local_y * awidth + local_x].first = {x, y};
-            ret[local_y * awidth + local_x].second = FLT_MAX;
+            ret.path_costs[local_y * awidth + local_x].first = {x, y};
+            ret.path_costs[local_y * awidth + local_x].second = FLT_MAX;
 
             if((vec2i){x, y} == start)
             {
-                ret[local_y * awidth + local_x].second = 0;
+                ret.path_costs[local_y * awidth + local_x].second = 0;
             }
+
+            ret.before[(vec2i){x, y}] = {-1, -1};
         }
     }
 
@@ -229,15 +236,15 @@ std::vector<std::pair<vec2i, float>> dijkstras(playspace_manager& play, vec2i st
         float next_val = FLT_MAX;
         int which = -1;
 
-        for(size_t i=0; i < ret.size(); i++)
+        for(size_t i=0; i < ret.path_costs.size(); i++)
         {
             if(skip[i])
                 continue;
 
-            if(ret[i].second < next_val)
+            if(ret.path_costs[i].second < next_val)
             {
-                current_sys = ret[i].first;
-                next_val = ret[i].second;
+                current_sys = ret.path_costs[i].first;
+                next_val = ret.path_costs[i].second;
                 which = i;
             }
         }
@@ -292,10 +299,11 @@ std::vector<std::pair<vec2i, float>> dijkstras(playspace_manager& play, vec2i st
             int next_local_x = next_sys.x() - min_dims.x();
             int next_local_y = next_sys.y() - min_dims.y();
 
-            if(next_score >= ret[next_local_y * awidth + next_local_x].second)
+            if(next_score >= ret.path_costs[next_local_y * awidth + next_local_x].second)
                 continue;
 
-            ret[next_local_y * awidth + next_local_x].second = next_score;
+            ret.path_costs[next_local_y * awidth + next_local_x].second = next_score;
+            ret.before[next_sys] = current_sys;
 
             //sorted.push_back({next_sys, found_gscore});
 
