@@ -53,6 +53,8 @@
 			<Add option="-lsfml-window" />
 			<Add directory="deps" />
 		</Linker>
+		<Unit filename="combat_model.cpp" />
+		<Unit filename="combat_model.hpp" />
 		<Unit filename="deps/imgui/examples/imgui_impl_glfw.cpp" />
 		<Unit filename="deps/imgui/examples/imgui_impl_glfw.h" />
 		<Unit filename="deps/imgui/examples/imgui_impl_opengl3.cpp" />
