@@ -220,7 +220,7 @@ void playspace_manager::generate_move_information()
 {
     for(auto& i : entities)
     {
-        i.second.cached_dijkstras = dijkstras(*this, i.second.tilemap_pos, i.second.max_move_cost);
+        i.second.cached_dijkstras = dijkstras(*this, i.second.tilemap_pos, i.second.model.get_move_distance());
     }
 }
 
@@ -337,7 +337,7 @@ unit_command enemy_step_single(playspace_manager& playspace, entity_object& to_s
 
     //std::optional move_path = playspace.a_star(to_step.tilemap_pos, to_step.tilemap_pos + (vec2i){5, 0});
 
-    std::optional move_path = playspace.pathfind(to_step.tilemap_pos, to_step.tilemap_pos + (vec2i){5, 0}, to_step.max_move_cost);
+    std::optional move_path = playspace.pathfind(to_step.tilemap_pos, to_step.tilemap_pos + (vec2i){5, 0}, to_step.model.get_move_distance());
 
     //idle_move.move_destination = to_step.tilemap_pos + (vec2i){5, 0};
     idle_move.unit_id = to_step.my_id;
@@ -501,9 +501,9 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
             {
                 const entity_object& obj = entities[val.unit_id];
 
-                dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, obj.max_move_cost);
+                dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, obj.model.get_move_distance());
 
-                if(inf.get_path_cost_to(mpos_opt.value()) <= obj.max_move_cost)
+                if(inf.get_path_cost_to(mpos_opt.value()) <= obj.model.get_move_distance())
                 {
                     std::optional<std::vector<vec2i>> path = inf.reconstruct_path(mpos_opt.value());
 
@@ -749,7 +749,7 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
             for(auto& i : dijkstra_info)
             {
-                if(i.second > entity.max_move_cost)
+                if(i.second > entity.model.get_move_distance())
                     continue;
 
                 vec2i pos = i.first;

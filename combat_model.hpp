@@ -25,6 +25,20 @@ namespace combat_info
     };
 }
 
+struct equipment_facet
+{
+    enum types
+    {
+        RANGE,
+        DAMAGE,
+    };
+};
+
+struct equipment
+{
+    std::vector<equipment_facet> facets;
+};
+
 struct body_part
 {
     float hp = 1;
@@ -33,17 +47,22 @@ struct body_part
     body_part_info::types type = body_part_info::COUNT;
 
     float get_functionality();
-    combat_info::hit_types roll_to_hit(std::minstd_rand& gen, float probability_modification);
+    combat_info::hit_types roll_to_hit(std::minstd_rand& gen, float probability_modification) const;
     void hit(float damage);
 };
 
 struct creature_model
 {
+    std::string name = "No Name";
     std::vector<body_part> parts;
 
     combat_info::hit_types hit_random_bodypart_for(float damage, float probability_modification);
     float get_move_speed_fraction();
-    float get_aim_accuracy_fraction();
+    float get_move_distance() const;
+    /*float get_aim_accuracy_fraction();
+    float get_shoot_range();
+    float get_move_range();
+    float get*/
 };
 
 creature_model default_alien_model();

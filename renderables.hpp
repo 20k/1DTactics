@@ -7,6 +7,7 @@
 #include <SFML/Graphics.hpp>
 #include <optional>
 #include "pathfinding.hpp"
+#include "combat_model.hpp"
 
 #define TILE_PIX 16
 #define TILE_SEP 1
@@ -95,7 +96,7 @@ struct entity_object
     uint64_t my_id = -1;
     bool finished_turn = false;
     size_t squad_id = -1;
-    float max_move_cost = 10;
+    creature_model model;
 
     ai_disposition::types disposition = ai_disposition::NONE;
 

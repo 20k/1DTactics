@@ -23,7 +23,7 @@ float body_part::get_functionality()
 }
 
 ///crits?
-combat_info::hit_types body_part::roll_to_hit(std::minstd_rand& rng, float probability_modification)
+combat_info::hit_types body_part::roll_to_hit(std::minstd_rand& rng, float probability_modification) const
 {
     bool direct_hit = rand_det_s(rng, 0.f, 1.f) < (base_hit_probability * probability_modification);
 
@@ -77,6 +77,11 @@ combat_info::hit_types creature_model::hit_random_bodypart_for(float damage, flo
     return ret;
 }
 
+float creature_model::get_move_distance() const
+{
+    return 10.f;
+}
+
 creature_model default_alien_model()
 {
     creature_model mod;
@@ -104,6 +109,8 @@ creature_model default_alien_model()
     mod.parts.push_back(leg);
     mod.parts.push_back(leg);
     mod.parts.push_back(leg);
+
+    mod.name = "Bug";
 
     return mod;
 }
@@ -140,6 +147,8 @@ creature_model default_trooper_model()
 
     mod.parts.push_back(leg);
     mod.parts.push_back(leg);
+
+    mod.name = "Trooper";
 
     return mod;
 }
