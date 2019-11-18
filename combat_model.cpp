@@ -1,5 +1,24 @@
 #include "combat_model.hpp"
 
+std::optional<item_facet> item::get_facet(item_facet::types type) const
+{
+    for(auto& i : facets)
+    {
+        if(i.type == type)
+            return i;
+    }
+
+    return std::nullopt;
+}
+
+void item::add_facet(const item_facet& facet)
+{
+    if(get_facet(facet.type).has_value())
+        throw std::runtime_error("Already has facet " + std::to_string(facet.type));
+
+    facets.push_back(facet);
+}
+
 float body_part::get_functionality()
 {
     float frac = hp / max_hp;
@@ -82,6 +101,11 @@ float creature_model::get_move_distance() const
     return 10.f;
 }
 
+void creature_model::add_item(const item& it)
+{
+    inventory.push_back(it);
+}
+
 creature_model default_alien_model()
 {
     creature_model mod;
@@ -151,4 +175,27 @@ creature_model default_trooper_model()
     mod.name = "Trooper";
 
     return mod;
+}
+
+item default_rifle()
+{
+    item_facet range;
+    range.value = 10;
+    range.type = item_facet::RANGE;
+
+    item_facet damage;
+    range.value = 1;
+    range.type = item_facet::DAMAGE;
+
+    item_facet agency;
+    agency.value = 1;
+    agency.type = item_facet::SHOOTABLE;
+
+    item ret;
+    ret.add_facet(range);
+    ret.add_facet(damage);
+    ret.add_facet(agency);
+    ret.name = "PoW_21";
+
+    return ret;
 }

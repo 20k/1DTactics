@@ -318,13 +318,16 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
 
         all_tiles[10 * level_size.x() + 10].push_back(obj);*/
 
-        auto e_1 = add_entity({10, 10}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
-        auto e_2 = add_entity({12, 10}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
-        auto e_3 = add_entity({13, 13}, tiles::GROUND_BUG, ai_disposition::HOSTILE);
+        auto e_1 = add_entity({10, 10}, tiles::GROUND_BUG, ai_disposition::HOSTILE, default_alien_model());
+        auto e_2 = add_entity({12, 10}, tiles::GROUND_BUG, ai_disposition::HOSTILE, default_alien_model());
+        auto e_3 = add_entity({13, 13}, tiles::GROUND_BUG, ai_disposition::HOSTILE, default_alien_model());
 
         make_squad({e_1, e_2, e_3});
 
-        auto p_1 = add_entity({16, 15}, tiles::SOLDIER, ai_disposition::NONE);
+        creature_model my_model = default_trooper_model();
+        my_model.add_item(default_rifle());
+
+        auto p_1 = add_entity({16, 15}, tiles::SOLDIER, ai_disposition::NONE, my_model);
     }
 
     generate_move_information();
@@ -464,10 +467,12 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
             if(!obj.entity_id.has_value())
                 continue;
 
-            if(entities[obj.entity_id.value()].disposition != ai_disposition::NONE)
+            entity_object& eobj = entities[obj.entity_id.value()];
+
+            if(eobj.disposition != ai_disposition::NONE)
                 continue;
 
-            ImGui::Begin("Actions");
+            ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
             if(ImGui::Button("Move"))
             {
@@ -478,11 +483,21 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
                 player_building_move = command;
             }
 
-            ImGui::SameLine();
+            creature_model& cmodel = eobj.model;
 
-            if(ImGui::Button("Shoot"))
+            for(item& it : cmodel.inventory)
             {
+                if(!it.get_facet(item_facet::SHOOTABLE).has_value())
+                    continue;
 
+                ImGui::Text(it.name.c_str());
+
+                ImGui::SameLine();
+
+                if(ImGui::Button("Shoot"))
+                {
+
+                }
             }
 
             ImGui::End();
@@ -763,7 +778,7 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
     }
 }
 
-uint64_t playspace_manager::add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type)
+uint64_t playspace_manager::add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type, const creature_model& model)
 {
     if(where.x() < 0 || where.y() < 0 || where.x() >= level_size.x() || where.y() >= level_size.y())
         throw std::runtime_error("No! Bad add entity at " + std::to_string(where.x()) + " " + std::to_string(where.y()));
@@ -779,6 +794,7 @@ uint64_t playspace_manager::add_entity(vec2i where, tiles::types type, ai_dispos
     entity_object eobj;
     eobj.tilemap_pos = where;
     eobj.disposition = ai_type;
+    eobj.model = model;
 
     eobj.my_id = entity_gid++;
     obj.entity_id = eobj.my_id;

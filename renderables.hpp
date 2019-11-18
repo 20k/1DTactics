@@ -146,7 +146,7 @@ struct playspace_manager
     bool step_enemies = false;
     int next_entity = 0;
 
-    uint64_t add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type);
+    uint64_t add_entity(vec2i where, tiles::types type, ai_disposition::types ai_type, const creature_model& model);
     void make_squad(const std::vector<uint64_t>& ids);
 
     std::optional<unit_command> playing_move;
