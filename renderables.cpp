@@ -446,18 +446,18 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
                 selected_tile = spos;
             }
         }
+    }
 
-        if(ImGui::IsMouseClicked(1, false) && can_click)
-        {
-            selected_tile = std::nullopt;
-            player_building_move = std::nullopt;
-        }
+    if(ImGui::IsMouseClicked(1, false) && can_click)
+    {
+        selected_tile = std::nullopt;
+        player_building_move = std::nullopt;
+    }
 
-        if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE, false))
-        {
-            selected_tile = std::nullopt;
-            player_building_move = std::nullopt;
-        }
+    if(ImGui::IsKeyPressed(GLFW_KEY_ESCAPE, false))
+    {
+        selected_tile = std::nullopt;
+        player_building_move = std::nullopt;
     }
 
     if(selected_tile.has_value() && is_in_my_turn)
@@ -485,8 +485,10 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
             creature_model& cmodel = eobj.model;
 
-            for(item& it : cmodel.inventory)
+            for(int idx = 0; idx < (int)cmodel.inventory.size(); idx++)
             {
+                item& it = cmodel.inventory[idx];
+
                 if(!it.get_facet(item_facet::SHOOTABLE).has_value())
                     continue;
 
@@ -496,7 +498,11 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
                 if(ImGui::Button("Shoot"))
                 {
+                    unit_command command;
+                    command.type = unit_command::SHOOT;
+                    command.item_use_id = idx;
 
+                    player_building_move = command;
                 }
             }
 

@@ -117,6 +117,8 @@ struct unit_command
     types type = types::END;
     double elapsed_time_s = 0;
     bool update_focus = false;
+
+    int item_use_id = -1;
 };
 
 struct playspace_manager
