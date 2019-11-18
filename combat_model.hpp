@@ -32,6 +32,7 @@ struct item_facet
     {
         RANGE,
         DAMAGE,
+        ACCURACY_MOD,
         SHOOTABLE,
         WEARABLE,
         THROWABLE,

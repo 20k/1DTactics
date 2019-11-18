@@ -192,10 +192,15 @@ item default_rifle()
     agency.value = 1;
     agency.type = item_facet::SHOOTABLE;
 
+    item_facet accuracy_mod;
+    accuracy_mod.value = 0.8;
+    accuracy_mod.type = item_facet::ACCURACY_MOD;
+
     item ret;
     ret.add_facet(range);
     ret.add_facet(damage);
     ret.add_facet(agency);
+    ret.add_facet(accuracy_mod);
     ret.name = "PoW_21";
 
     return ret;
@@ -204,4 +209,22 @@ item default_rifle()
 void handle_attack(creature_model& source, creature_model& target, item& with)
 {
     std::cout << source.name << " shot " << target.name << std::endl;
+
+    float accuracy_mod = 1;
+
+    if(auto facet_val = with.get_facet(item_facet::ACCURACY_MOD); facet_val.has_value())
+    {
+        accuracy_mod = facet_val.value().value;
+    }
+
+    float damage = 0;
+
+    if(auto facet_val = with.get_facet(item_facet::DAMAGE); facet_val.has_value())
+    {
+        damage = facet_val.value().value;
+    }
+
+    auto result = target.hit_random_bodypart_for(damage, accuracy_mod);
+
+    std::cout << "result " << result << std::endl;
 }
