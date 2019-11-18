@@ -439,7 +439,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
         {
             vec2i spos = tile_opt.value();
 
-            printf("FOUND TILE %i %i\n", spos.x(), spos.y());
+            //printf("FOUND TILE %i %i\n", spos.x(), spos.y());
 
             if(ImGui::IsMouseClicked(0, false) && can_click)
             {
@@ -500,6 +500,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
                 {
                     unit_command command;
                     command.type = unit_command::SHOOT;
+                    command.unit_id = obj.entity_id.value();
                     command.item_use_id = idx;
 
                     player_building_move = command;
@@ -518,21 +519,52 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
         if(mpos_opt.has_value())
         {
-            if(val.type == unit_command::MOVE)
+            if(ImGui::IsMouseClicked(0) && can_click)
             {
-                const entity_object& obj = entities[val.unit_id];
-
-                dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, obj.model.get_move_distance());
-
-                if(inf.get_path_cost_to(mpos_opt.value()) <= obj.model.get_move_distance())
+                if(val.type == unit_command::MOVE)
                 {
-                    std::optional<std::vector<vec2i>> path = inf.reconstruct_path(mpos_opt.value());
+                    const entity_object& obj = entities[val.unit_id];
 
-                    if(path.has_value() && ImGui::IsMouseClicked(0) && can_click)
+                    dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, obj.model.get_move_distance());
+
+                    if(inf.get_path_cost_to(mpos_opt.value()) <= obj.model.get_move_distance())
                     {
-                        val.move_path = path.value();
-                        val.update_focus = true;
-                        playing_move = val;
+                        std::optional<std::vector<vec2i>> path = inf.reconstruct_path(mpos_opt.value());
+
+                        if(path.has_value())
+                        {
+                            val.move_path = path.value();
+                            val.update_focus = true;
+                            playing_move = val;
+                            player_building_move = std::nullopt;
+                        }
+                    }
+                }
+
+                ///need to do visibility probability stuff
+                if(val.type == unit_command::SHOOT)
+                {
+                    entity_object& firer_obj = entities[val.unit_id];
+                    item& firing_item = firer_obj.model.inventory.at(val.item_use_id);
+
+                    int tile_idx = mpos_opt.value().y() * level_size.x() + mpos_opt.value().x();
+
+                    bool found = false;
+
+                    for(tile_object& tobj : all_tiles.at(tile_idx))
+                    {
+                        if(tobj.entity_id.has_value())
+                        {
+                            entity_object& targeted_obj = entities[tobj.entity_id.value()];
+
+                            handle_attack(firer_obj.model, targeted_obj.model, firing_item);
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if(found)
+                    {
                         player_building_move = std::nullopt;
                     }
                 }

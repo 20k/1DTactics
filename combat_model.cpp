@@ -1,4 +1,5 @@
 #include "combat_model.hpp"
+#include <iostream>
 
 std::optional<item_facet> item::get_facet(item_facet::types type) const
 {
@@ -198,4 +199,9 @@ item default_rifle()
     ret.name = "PoW_21";
 
     return ret;
+}
+
+void handle_attack(creature_model& source, creature_model& target, item& with)
+{
+    std::cout << source.name << " shot " << target.name << std::endl;
 }

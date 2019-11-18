@@ -83,6 +83,8 @@ struct creature_model
     float get*/
 };
 
+void handle_attack(creature_model& source, creature_model& target, item& with);
+
 creature_model default_alien_model();
 creature_model default_trooper_model();
 
