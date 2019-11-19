@@ -470,44 +470,54 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
             entity_object& eobj = entities[obj.entity_id.value()];
 
             if(eobj.disposition != ai_disposition::NONE)
-                continue;
-
-            ImGui::Begin("Actions", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-
-            if(ImGui::Button("Move"))
             {
-                unit_command command;
-                command.type = unit_command::MOVE;
-                command.unit_id = obj.entity_id.value();
+                ImGui::Begin("Enemy Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-                player_building_move = command;
+                eobj.model.append_rendering();
+
+                ImGui::End();
             }
-
-            creature_model& cmodel = eobj.model;
-
-            for(int idx = 0; idx < (int)cmodel.inventory.size(); idx++)
+            else
             {
-                item& it = cmodel.inventory[idx];
+                ImGui::Begin("Creature Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-                if(!it.get_facet(item_facet::SHOOTABLE).has_value())
-                    continue;
+                eobj.model.append_rendering();
 
-                ImGui::Text(it.name.c_str());
-
-                ImGui::SameLine();
-
-                if(ImGui::Button("Shoot"))
+                if(ImGui::Button("Move"))
                 {
                     unit_command command;
-                    command.type = unit_command::SHOOT;
+                    command.type = unit_command::MOVE;
                     command.unit_id = obj.entity_id.value();
-                    command.item_use_id = idx;
 
                     player_building_move = command;
                 }
-            }
 
-            ImGui::End();
+                creature_model& cmodel = eobj.model;
+
+                for(int idx = 0; idx < (int)cmodel.inventory.size(); idx++)
+                {
+                    item& it = cmodel.inventory[idx];
+
+                    if(!it.get_facet(item_facet::SHOOTABLE).has_value())
+                        continue;
+
+                    ImGui::Text(it.name.c_str());
+
+                    ImGui::SameLine();
+
+                    if(ImGui::Button("Shoot"))
+                    {
+                        unit_command command;
+                        command.type = unit_command::SHOOT;
+                        command.unit_id = obj.entity_id.value();
+                        command.item_use_id = idx;
+
+                        player_building_move = command;
+                    }
+                }
+
+                ImGui::End();
+            }
         }
     }
 

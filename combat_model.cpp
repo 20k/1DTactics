@@ -1,5 +1,15 @@
 #include "combat_model.hpp"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <imgui/imgui.h>
+
+std::string format_to_string(float val, int precision)
+{
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(precision) << val;
+    return ss.str();
+}
 
 std::optional<item_facet> item::get_facet(item_facet::types type) const
 {
@@ -105,6 +115,31 @@ float creature_model::get_move_distance() const
 void creature_model::add_item(const item& it)
 {
     inventory.push_back(it);
+}
+
+void creature_model::append_rendering()
+{
+    ImGui::Text("Health:");
+
+    for(int i=0; i < (int)parts.size(); i++)
+    {
+        const body_part& my_part = parts[i];
+
+        std::string name = body_part_info::names[my_part.type];
+
+        std::string hp_1 = format_to_string(my_part.hp, 2);
+        std::string hp_2 = format_to_string(my_part.max_hp, 2);
+
+        ImGui::Text((name + ": ").c_str());
+
+        ImGui::SameLine();
+
+        ImGui::Text(hp_1.c_str());
+
+        ImGui::SameLine();
+
+        ImGui::Text(hp_2.c_str());
+    }
 }
 
 creature_model default_alien_model()

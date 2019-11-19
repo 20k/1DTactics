@@ -3,6 +3,8 @@
 
 #include <vec/vec.hpp>
 #include <optional>
+#include <string>
+#include <vector>
 
 namespace body_part_info
 {
@@ -13,6 +15,16 @@ namespace body_part_info
         HEAD,
         TORSO,
         COUNT
+    };
+
+    static inline
+    std::vector<std::string> names
+    {
+        "Arm",
+        "Leg",
+        "Head",
+        "Torso",
+        "Error",
     };
 }
 
@@ -77,6 +89,8 @@ struct creature_model
     float get_move_distance() const;
 
     void add_item(const item& it);
+    ///renders current ui state into an existing window
+    void append_rendering();
 
     /*float get_aim_accuracy_fraction();
     float get_shoot_range();
