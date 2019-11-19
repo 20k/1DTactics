@@ -393,6 +393,72 @@ std::optional<unit_command> player_step(playspace_manager& playspace)
     return std::nullopt;
 }
 
+///ignores item effects
+float get_terrainwise_hit_probability(const entity_object& source, const entity_object& target, float weapon_shoot_distance)
+{
+    if(weapon_shoot_distance < 1)
+        return 0;
+
+    float hit_probability_at_max = 0.1;
+    float hit_probability_at_min = 1;
+
+    vec2f diff = (vec2f){source.tilemap_pos.x(), source.tilemap_pos.y()} - (vec2f){target.tilemap_pos.x(), target.tilemap_pos.y()};
+
+    float len = diff.length();
+
+    if(len <= weapon_shoot_distance)
+    {
+        ///so. at 0 len, we hit 1, and len = weapon_shoot_distance, we hit max = 0.1
+        return mix(hit_probability_at_min, hit_probability_at_max, len / weapon_shoot_distance);
+    }
+
+    return 0.f;
+}
+
+///needs to handle terrain
+void render_hit_probabilities(playspace_manager& play, entity_object& eobject, item& weapon)
+{
+    float weapon_shoot_distance = 1;
+
+    if(auto weapon_opt = weapon.get_facet(item_facet::RANGE); weapon_opt.has_value())
+    {
+        weapon_shoot_distance = weapon_opt.value().value;
+    }
+
+    if(weapon_shoot_distance < 1)
+        return;
+
+    vec2i tile_pos = eobject.tilemap_pos;
+
+    vec2i min_pos = tile_pos - (vec2i){weapon_shoot_distance, weapon_shoot_distance};
+    vec2i max_pos = tile_pos + (vec2i){weapon_shoot_distance, weapon_shoot_distance};
+
+    min_pos = clamp(min_pos, (vec2i){0,0}, play.level_size - (vec2i){1, 1});
+    max_pos = clamp(max_pos, (vec2i){0,0}, play.level_size - (vec2i){1, 1});
+
+    for(int y=min_pos.y(); y <= max_pos.y(); y++)
+    {
+        for(int x=min_pos.x(); x <= max_pos.x(); x++)
+        {
+            vec2i target_pos = {x, y};
+
+            int idx = target_pos.y() * play.level_size.x() + target_pos.x();
+
+            for(const tile_object& tobj : play.all_tiles.at(idx))
+            {
+                if(!tobj.entity_id.has_value())
+                    continue;
+
+                const entity_object& target_entity = play.entities[tobj.entity_id.value()];
+
+                float hit_probability = get_terrainwise_hit_probability(eobject, target_entity, weapon_shoot_distance);
+
+                play.render_text_at(format_to_string(hit_probability, 1), play.tile_to_screen(target_entity.tilemap_pos, play.screen_dimensions), 0.f);
+            }
+        }
+    }
+}
+
 void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 {
     vec2f dir;
@@ -524,6 +590,11 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
     if(player_building_move.has_value())
     {
         unit_command& val = player_building_move.value();
+
+        if(val.type == unit_command::SHOOT)
+        {
+            render_hit_probabilities(*this, entities[val.unit_id], entities[val.unit_id].model.inventory.at(val.item_use_id));
+        }
 
         auto mpos_opt = screen_to_tile(mpos, screen_dimensions);
 
@@ -783,45 +854,71 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
         }
     }
 
-    if(vertices.size() == 0)
-        return;
-
-    sf::RenderStates states;
-    states.blendMode = sf::BlendAlpha;
-    states.texture = &spritemap;
-
-    win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
-
-    if(selected_tile.has_value() && !playing_move.has_value())
+    if(vertices.size() > 0)
     {
-        for(tile_object& tile : all_tiles[selected_tile.value().y() * level_size.x() + selected_tile.value().x()])
+        sf::RenderStates states;
+        states.blendMode = sf::BlendAlpha;
+        states.texture = &spritemap;
+
+        win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
+
+        if(selected_tile.has_value() && !playing_move.has_value())
         {
-            if(!tile.entity_id.has_value())
-                continue;
-
-            sf::RectangleShape shape;
-            shape.setSize({TILE_PIX - 4, TILE_PIX - 4});
-            shape.setOrigin({TILE_PIX/2 - 2, TILE_PIX/2 - 2});
-            shape.setFillColor(sf::Color(0,0,0,0));
-            shape.setOutlineColor(sf::Color(255, 255, 255, 60));
-            shape.setOutlineThickness(1);
-
-            entity_object& entity = entities[tile.entity_id.value()];
-
-            const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
-
-            for(auto& i : dijkstra_info)
+            for(tile_object& tile : all_tiles[selected_tile.value().y() * level_size.x() + selected_tile.value().x()])
             {
-                if(i.second > entity.model.get_move_distance())
+                if(!tile.entity_id.has_value())
                     continue;
 
-                vec2i pos = i.first;
+                sf::RectangleShape shape;
+                shape.setSize({TILE_PIX - 4, TILE_PIX - 4});
+                shape.setOrigin({TILE_PIX/2 - 2, TILE_PIX/2 - 2});
+                shape.setFillColor(sf::Color(0,0,0,0));
+                shape.setOutlineColor(sf::Color(255, 255, 255, 60));
+                shape.setOutlineThickness(1);
 
-                vec2f rpos = tile_to_screen(pos, window_half_dim*2);
+                entity_object& entity = entities[tile.entity_id.value()];
 
-                shape.setPosition(rpos.x(), rpos.y());
-                win.draw(shape, states);
+                const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
+
+                for(auto& i : dijkstra_info)
+                {
+                    if(i.second > entity.model.get_move_distance())
+                        continue;
+
+                    vec2i pos = i.first;
+
+                    vec2f rpos = tile_to_screen(pos, window_half_dim*2);
+
+                    shape.setPosition(rpos.x(), rpos.y());
+                    win.draw(shape, states);
+                }
             }
+        }
+    }
+
+    auto render_renderable = [&](async_renderable& renderable)
+    {
+        auto last_pos = ImGui::GetCursorPos();
+
+        if(renderable.type == async_renderable::TEXT)
+        {
+            ImGui::SetCursorScreenPos({renderable.screen_pos.x(), renderable.screen_pos.y()});
+
+            ImGui::Text(renderable.text_info.c_str());
+        }
+
+        ImGui::SetCursorPos(last_pos);
+    };
+
+    for(int i=0; i < (int)async_renderables.size(); i++)
+    {
+        render_renderable(async_renderables[i]);
+
+        if((async_renderables[i].elapsed.getElapsedTime().asMicroseconds() / 1000. / 1000.) > async_renderables[i].timeout_s)
+        {
+            async_renderables.erase(async_renderables.begin() + i);
+            i--;
+            continue;
         }
     }
 }
@@ -920,4 +1017,15 @@ vec2f playspace_manager::tile_to_screen(vec2i tile_pos, vec2f screen_dimensions)
     vec2f relative = (vec2f){tile_pos.x(), tile_pos.y()} * TILE_PIX - camera_pos + screen_dimensions/2.f;
 
     return relative;
+}
+
+void playspace_manager::render_text_at(const std::string& text, vec2f screen_pos, float timeout_s)
+{
+    async_renderable renderable;
+    renderable.type = async_renderable::TEXT;
+    renderable.text_info = text;
+    renderable.timeout_s = timeout_s;
+    renderable.screen_pos = screen_pos;
+
+    async_renderables.push_back(renderable);
 }

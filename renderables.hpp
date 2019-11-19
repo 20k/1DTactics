@@ -121,6 +121,22 @@ struct unit_command
     int item_use_id = -1;
 };
 
+struct async_renderable
+{
+    enum types
+    {
+        TEXT,
+        NONE
+    };
+
+    vec2f screen_pos = {0,0};
+    std::string text_info;
+
+    types type = types::NONE;
+    float timeout_s = 0; ///0 means render once then vanish
+    sf::Clock elapsed;
+};
+
 struct playspace_manager
 {
     sf::Texture spritemap;
@@ -129,11 +145,14 @@ struct playspace_manager
     static inline uint64_t squad_gid = 0;
 
     vec2f camera_pos;
+    vec2f screen_dimensions;
     float zoom = 1;
 
     vec2i level_size = {0,0};
     std::vector<std::vector<tile_object>> all_tiles;
     std::map<uint64_t, entity_object> entities; ///UNITS, not anything else. Actionable entities like chickens, crocodiles
+
+    std::vector<async_renderable> async_renderables;
 
     level_info::types level_type = level_info::GRASS;
 
@@ -161,6 +180,8 @@ struct playspace_manager
     vec2f tile_to_screen(vec2i tile, vec2f screen_dimensions);
 
     std::optional<vec2i> selected_tile;
+
+    void render_text_at(const std::string& text, vec2f screen_pos, float timeout_s = 0);
 };
 
 #endif // RENDERABLES_HPP_INCLUDED

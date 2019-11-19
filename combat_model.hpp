@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+std::string format_to_string(float val, int precision);
+
 namespace body_part_info
 {
     enum types

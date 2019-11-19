@@ -131,6 +131,7 @@ int main(int argc, char* argv[])
     win.setVerticalSyncEnabled(true);
 
     playspace_manager level;
+    level.screen_dimensions = {win.getSize().x/2, win.getSize().y/2};
     level.create_level({1000, 1000}, level_info::GRASS);
     level.camera_pos = {win.getSize().x/2, win.getSize().y/2};
 
@@ -145,6 +146,8 @@ int main(int argc, char* argv[])
 
         int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
+
+        level.screen_dimensions = {display_w, display_h};
 
         if(glfwWindowShouldClose(window))
             running = false;
