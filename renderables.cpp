@@ -898,16 +898,26 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
     auto render_renderable = [&](async_renderable& renderable)
     {
-        auto last_pos = ImGui::GetCursorPos();
+        //auto last_pos = ImGui::GetCursorPos();
 
         if(renderable.type == async_renderable::TEXT)
         {
-            ImGui::SetCursorScreenPos({renderable.screen_pos.x(), renderable.screen_pos.y()});
+            ImGui::SetNextWindowPos({renderable.screen_pos.x() + ImGui::GetMainViewport()->Pos.x, renderable.screen_pos.y() + ImGui::GetMainViewport()->Pos.y});
+
+            std::string id_str = "Testo##text" + std::to_string(renderable.id);
+
+            ImGui::Begin(id_str.c_str(), nullptr, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize);
+
+            //ImGui::SetCursorScreenPos({renderable.screen_pos.x(), renderable.screen_pos.y()});
+
+            ImGui::Text("Hello\n");
 
             ImGui::Text(renderable.text_info.c_str());
+
+            ImGui::End();
         }
 
-        ImGui::SetCursorPos(last_pos);
+        //ImGui::SetCursorPos(last_pos);
     };
 
     for(int i=0; i < (int)async_renderables.size(); i++)

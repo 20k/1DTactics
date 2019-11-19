@@ -135,6 +135,9 @@ struct async_renderable
     types type = types::NONE;
     float timeout_s = 0; ///0 means render once then vanish
     sf::Clock elapsed;
+
+    static inline int gid = 0;
+    int id = gid++;
 };
 
 struct playspace_manager
