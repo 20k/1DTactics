@@ -746,18 +746,10 @@ void playspace_manager::next_turn()
 
 void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, vec2f window_dim, sf::RenderStates& states)
 {
-    sf::RectangleShape shape;
-    shape.setSize({TILE_PIX, TILE_PIX});
-    shape.setOrigin({shape.getSize().x/2, shape.getSize().y/2});
-    shape.setFillColor(sf::Color(255,255,255,80));
-    //shape.setFillColor(sf::Color(0,0,0,0));
-    shape.setOutlineColor(sf::Color(255, 255, 255, 60));
-    //shape.setOutlineThickness(1);
-
     sf::RectangleShape horizontal_bar;
     horizontal_bar.setSize({TILE_PIX, 2});
     horizontal_bar.setOrigin({horizontal_bar.getSize().x/2, horizontal_bar.getSize().y/2});
-    horizontal_bar.setFillColor(sf::Color(255, 255, 255, 80));
+    horizontal_bar.setFillColor(sf::Color(120, 120, 120, 255));
 
     float entity_move_distance = entity.model.get_move_distance();
 
@@ -765,42 +757,14 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
     ///if all 9 of my neighbours are filled (4?), don't render me
     const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
 
-    if(dijkstra_info.size() == 0)
-        return;
-
-    vec2i dim = entity.cached_dijkstras.max_pos - entity.cached_dijkstras.min_pos;
-
-    vec2i min_pos = entity.cached_dijkstras.min_pos;
-    vec2i max_pos = entity.cached_dijkstras.max_pos;
-
-    auto should_render_pos = [&](vec2i pos)
+    auto accessible = [&](vec2i pos)
     {
-        if(entity.cached_dijkstras.get_path_cost_to(pos) > entity_move_distance)
-            return false;
-
-        for(int y=-1; y <= 1; y++)
-        {
-            for(int x=-1; x <= 1; x++)
-            {
-                //if(abs(x) == abs(y))
-                //    continue;
-
-                vec2i offset = {x, y};
-                vec2i apos = pos + offset;
-
-                float cost = entity.cached_dijkstras.get_path_cost_to(apos);
-
-                if(cost > entity_move_distance)
-                    return true;
-            }
-        }
-
-        return false;
+        return entity.cached_dijkstras.get_path_cost_to(pos) <= entity_move_distance;
     };
 
     for(auto& i : dijkstra_info)
     {
-        if(should_render_pos(i.first))
+        if(accessible(i.first))
             continue;
 
         for(int y=-1; y <= 1; y++)
@@ -810,10 +774,10 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
                 if(abs(x) == abs(y))
                     continue;
 
-                if(!should_render_pos(i.first + (vec2i){x, y}))
+                if(!accessible(i.first + (vec2i){x, y}))
                     continue;
 
-                float rotation_angle = (vec2f){x, y}.angle();
+                float rotation_angle = (vec2f){x, y}.angle() + M_PI/2;
                 vec2f position = (vec2f){i.first.x(), i.first.y()} + (vec2f){x, y}/2.f;
 
                 vec2f screen_pos = play.fractional_tile_to_screen(position, window_dim);
@@ -825,22 +789,6 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
             }
         }
     }
-
-    /*for(auto& i : dijkstra_info)
-    {
-        if(i.second > entity_move_distance)
-            continue;
-
-        //if(!should_render_pos(i.first))
-        //    continue;
-
-        vec2i pos = i.first;
-
-        vec2f rpos = play.tile_to_screen(pos, window_dim);
-
-        shape.setPosition(rpos.x(), rpos.y());
-        win.draw(shape, states);
-    }*/
 }
 
 void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
