@@ -753,8 +753,6 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
 
     float entity_move_distance = entity.model.get_move_distance();
 
-    ///so, step 1 of dijkstras would be...
-    ///if all 9 of my neighbours are filled (4?), don't render me
     const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
 
     auto accessible = [&](vec2i pos)
