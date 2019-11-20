@@ -220,8 +220,8 @@ item default_rifle()
     range.type = item_facet::RANGE;
 
     item_facet damage;
-    range.value = 1;
-    range.type = item_facet::DAMAGE;
+    damage.value = 1;
+    damage.type = item_facet::DAMAGE;
 
     item_facet agency;
     agency.value = 1;

@@ -422,11 +422,17 @@ void render_hit_probabilities(playspace_manager& play, entity_object& eobject, i
 
     if(auto weapon_opt = weapon.get_facet(item_facet::RANGE); weapon_opt.has_value())
     {
+        std::cout << "facet\n";
+
         weapon_shoot_distance = weapon_opt.value().value;
     }
 
     if(weapon_shoot_distance < 1)
         return;
+
+    std::cout << "weapon " << weapon_shoot_distance << std::endl;
+    std::cout << "facets " << weapon.facets.size() << std::endl;
+    std::cout << "name? " << weapon.name << std::endl;
 
     vec2i tile_pos = eobject.tilemap_pos;
 
@@ -896,23 +902,29 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
         }
     }
 
-    auto render_renderable = [&](async_renderable& renderable)
+    auto render_renderable = [&](async_renderable& renderable, int idx)
     {
         //auto last_pos = ImGui::GetCursorPos();
 
         if(renderable.type == async_renderable::TEXT)
         {
-            ImGui::SetNextWindowPos({renderable.screen_pos.x() + ImGui::GetMainViewport()->Pos.x, renderable.screen_pos.y() + ImGui::GetMainViewport()->Pos.y});
+            vec2f spos = {renderable.screen_pos.x() + ImGui::GetMainViewport()->Pos.x, renderable.screen_pos.y() + ImGui::GetMainViewport()->Pos.y};
 
-            std::string id_str = "Testo##text" + std::to_string(renderable.id);
+            ImGui::SetNextWindowPos({spos.x(), spos.y()});
 
-            ImGui::Begin(id_str.c_str(), nullptr, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize);
+            std::string id_str = "Testo##text" + std::to_string(idx);
+
+            ImGui::Begin(id_str.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+
+            //ImGui::Begin(id_str.c_str());
 
             //ImGui::SetCursorScreenPos({renderable.screen_pos.x(), renderable.screen_pos.y()});
 
-            ImGui::Text("Hello\n");
+            /*ImGui::Text("Hello\n");*/
 
             ImGui::Text(renderable.text_info.c_str());
+
+            //ImGui::GetWindowDrawList()->AddText({spos.x(), spos.y()}, 0xFFFFFFFF, renderable.text_info.c_str(), nullptr);
 
             ImGui::End();
         }
@@ -922,7 +934,7 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
     for(int i=0; i < (int)async_renderables.size(); i++)
     {
-        render_renderable(async_renderables[i]);
+        render_renderable(async_renderables[i], i);
 
         if((async_renderables[i].elapsed.getElapsedTime().asMicroseconds() / 1000. / 1000.) > async_renderables[i].timeout_s)
         {
