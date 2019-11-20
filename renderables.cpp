@@ -399,6 +399,9 @@ float get_terrainwise_hit_probability(const entity_object& source, const entity_
     if(weapon_shoot_distance < 1)
         return 0;
 
+    if(&source == &target)
+        return 0;
+
     float hit_probability_at_max = 0.1;
     float hit_probability_at_min = 1;
 
@@ -422,17 +425,11 @@ void render_hit_probabilities(playspace_manager& play, entity_object& eobject, i
 
     if(auto weapon_opt = weapon.get_facet(item_facet::RANGE); weapon_opt.has_value())
     {
-        std::cout << "facet\n";
-
         weapon_shoot_distance = weapon_opt.value().value;
     }
 
     if(weapon_shoot_distance < 1)
         return;
-
-    std::cout << "weapon " << weapon_shoot_distance << std::endl;
-    std::cout << "facets " << weapon.facets.size() << std::endl;
-    std::cout << "name? " << weapon.name << std::endl;
 
     vec2i tile_pos = eobject.tilemap_pos;
 
@@ -459,7 +456,10 @@ void render_hit_probabilities(playspace_manager& play, entity_object& eobject, i
 
                 float hit_probability = get_terrainwise_hit_probability(eobject, target_entity, weapon_shoot_distance);
 
-                play.render_text_at(format_to_string(hit_probability, 1), play.tile_to_screen(target_entity.tilemap_pos, play.screen_dimensions), 0.f);
+                if(hit_probability <= 0.0f)
+                    continue;
+
+                play.render_text_at(format_to_string(hit_probability*100, 0) + "%%", play.tile_to_screen(target_entity.tilemap_pos, play.screen_dimensions), 0.f);
             }
         }
     }
@@ -916,6 +916,11 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
             //std::string id_str = "testo##text" + std::to_string(renderable.id);
 
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, 0x00000000);
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, 0x00000000);
+            ImGui::PushStyleColor(ImGuiCol_Border, 0x00000000);
+            ImGui::PushStyleColor(ImGuiCol_BorderShadow, 0x00000000);
+
             ImGui::Begin(id_str.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs|ImGuiWindowFlags_AlwaysAutoResize);
 
             //ImGui::Begin(id_str.c_str());
@@ -929,6 +934,8 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
             //ImGui::GetWindowDrawList()->AddText({spos.x(), spos.y()}, 0xFFFFFFFF, renderable.text_info.c_str(), nullptr);
 
             ImGui::End();
+
+            ImGui::PopStyleColor(4);
         }
 
         //ImGui::SetCursorPos(last_pos);
