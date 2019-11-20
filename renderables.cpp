@@ -753,13 +753,48 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
     shape.setOutlineColor(sf::Color(255, 255, 255, 60));
     shape.setOutlineThickness(1);
 
+    float entity_move_distance = entity.model.get_move_distance();
+
     ///so, step 1 of dijkstras would be...
     ///if all 9 of my neighbours are filled (4?), don't render me
     const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
 
+    if(dijkstra_info.size() == 0)
+        return;
+
+    vec2i dim = entity.cached_dijkstras.max_pos - entity.cached_dijkstras.min_pos;
+
+    vec2i min_pos = entity.cached_dijkstras.min_pos;
+    vec2i max_pos = entity.cached_dijkstras.max_pos;
+
+    auto should_render_pos = [&](vec2i pos)
+    {
+        for(int y=-1; y <= 1; y++)
+        {
+            for(int x=-1; x <= 1; x++)
+            {
+                //if(abs(x) == abs(y))
+                //    continue;
+
+                vec2i offset = {x, y};
+                vec2i apos = pos + offset;
+
+                float cost = entity.cached_dijkstras.get_path_cost_to(apos);
+
+                if(cost > entity_move_distance)
+                    return true;
+            }
+        }
+
+        return false;
+    };
+
     for(auto& i : dijkstra_info)
     {
-        if(i.second > entity.model.get_move_distance())
+        if(i.second > entity_move_distance)
+            continue;
+
+        if(!should_render_pos(i.first))
             continue;
 
         vec2i pos = i.first;

@@ -350,14 +350,11 @@ dijkstras_info dijkstras(playspace_manager& play, vec2i start, float max_cost)
             if(num_explored > cap && cap != -1)
                 return ret;*/
 
-
         }
     }
 
-    for(auto& i : ret.path_costs)
-    {
-        ret.path_map[i.first] = i.second;
-    }
+    ret.min_pos = min_dims;
+    ret.max_pos = max_dims;
 
     return ret;
 }

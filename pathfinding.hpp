@@ -7,7 +7,8 @@
 
 struct dijkstras_info
 {
-    std::map<vec2i, float> path_map;
+    vec2i min_pos;
+    vec2i max_pos;
     std::vector<std::pair<vec2i, float>> path_costs;
     std::map<vec2i, vec2i> before;
     vec2i start;
