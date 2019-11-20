@@ -165,13 +165,13 @@ int main(int argc, char* argv[])
 
         vec2f screen_absolute_pos = {wxpos, wypos};
 
-        double mxpos = 0;
+        /*double mxpos = 0;
         double mypos = 0;
         glfwGetCursorPos(window, &mxpos, &mypos);
 
-        auto mpos = (vec2f){mxpos, mypos};
+        auto mpos = (vec2f){mxpos, mypos};*/
 
-        //auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - screen_absolute_pos;
+        auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - screen_absolute_pos;
 
         level.tick(mpos, {display_w, display_h}, ImGui::GetIO().DeltaTime);
 
