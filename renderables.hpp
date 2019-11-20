@@ -181,6 +181,7 @@ struct playspace_manager
     std::optional<std::vector<vec2i>> pathfind(vec2i start, vec2i finish, float max_path_cost);
     std::optional<vec2i> screen_to_tile(vec2f screen_pos, vec2f screen_dimensions);
     vec2f tile_to_screen(vec2i tile, vec2f screen_dimensions);
+    vec2f fractional_tile_to_screen(vec2f tile, vec2f screen_dimensions);
 
     std::optional<vec2i> selected_tile;
 

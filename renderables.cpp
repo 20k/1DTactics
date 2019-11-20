@@ -747,11 +747,17 @@ void playspace_manager::next_turn()
 void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, vec2f window_dim, sf::RenderStates& states)
 {
     sf::RectangleShape shape;
-    shape.setSize({TILE_PIX - 4, TILE_PIX - 4});
-    shape.setOrigin({TILE_PIX/2 - 2, TILE_PIX/2 - 2});
-    shape.setFillColor(sf::Color(0,0,0,0));
+    shape.setSize({TILE_PIX, TILE_PIX});
+    shape.setOrigin({shape.getSize().x/2, shape.getSize().y/2});
+    shape.setFillColor(sf::Color(255,255,255,80));
+    //shape.setFillColor(sf::Color(0,0,0,0));
     shape.setOutlineColor(sf::Color(255, 255, 255, 60));
-    shape.setOutlineThickness(1);
+    //shape.setOutlineThickness(1);
+
+    sf::RectangleShape horizontal_bar;
+    horizontal_bar.setSize({TILE_PIX, 2});
+    horizontal_bar.setOrigin({horizontal_bar.getSize().x/2, horizontal_bar.getSize().y/2});
+    horizontal_bar.setFillColor(sf::Color(255, 255, 255, 80));
 
     float entity_move_distance = entity.model.get_move_distance();
 
@@ -769,6 +775,9 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
 
     auto should_render_pos = [&](vec2i pos)
     {
+        if(entity.cached_dijkstras.get_path_cost_to(pos) > entity_move_distance)
+            return false;
+
         for(int y=-1; y <= 1; y++)
         {
             for(int x=-1; x <= 1; x++)
@@ -791,11 +800,39 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
 
     for(auto& i : dijkstra_info)
     {
+        if(should_render_pos(i.first))
+            continue;
+
+        for(int y=-1; y <= 1; y++)
+        {
+            for(int x=-1; x <= 1; x++)
+            {
+                if(abs(x) == abs(y))
+                    continue;
+
+                if(!should_render_pos(i.first + (vec2i){x, y}))
+                    continue;
+
+                float rotation_angle = (vec2f){x, y}.angle();
+                vec2f position = (vec2f){i.first.x(), i.first.y()} + (vec2f){x, y}/2.f;
+
+                vec2f screen_pos = play.fractional_tile_to_screen(position, window_dim);
+
+                horizontal_bar.setPosition(screen_pos.x(), screen_pos.y());
+                horizontal_bar.setRotation(r2d(rotation_angle));
+
+                win.draw(horizontal_bar);
+            }
+        }
+    }
+
+    /*for(auto& i : dijkstra_info)
+    {
         if(i.second > entity_move_distance)
             continue;
 
-        if(!should_render_pos(i.first))
-            continue;
+        //if(!should_render_pos(i.first))
+        //    continue;
 
         vec2i pos = i.first;
 
@@ -803,7 +840,7 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
 
         shape.setPosition(rpos.x(), rpos.y());
         win.draw(shape, states);
-    }
+    }*/
 }
 
 void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
@@ -1092,6 +1129,13 @@ std::optional<vec2i> playspace_manager::screen_to_tile(vec2f screen_pos, vec2f s
 vec2f playspace_manager::tile_to_screen(vec2i tile_pos, vec2f screen_dimensions)
 {
     vec2f relative = (vec2f){tile_pos.x(), tile_pos.y()} * TILE_PIX - camera_pos + screen_dimensions/2.f;
+
+    return relative;
+}
+
+vec2f playspace_manager::fractional_tile_to_screen(vec2f tile_pos, vec2f screen_dimensions)
+{
+    vec2f relative = tile_pos * TILE_PIX - camera_pos + screen_dimensions/2.f;
 
     return relative;
 }
