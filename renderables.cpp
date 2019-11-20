@@ -749,7 +749,7 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
     sf::RectangleShape horizontal_bar;
     horizontal_bar.setSize({TILE_PIX, 2});
     horizontal_bar.setOrigin({horizontal_bar.getSize().x/2, horizontal_bar.getSize().y/2});
-    horizontal_bar.setFillColor(sf::Color(120, 120, 120, 255));
+    horizontal_bar.setFillColor(sf::Color(120, 170, 170, 255));
 
     float entity_move_distance = entity.model.get_move_distance();
 
