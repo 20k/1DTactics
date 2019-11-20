@@ -914,7 +914,9 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
             std::string id_str = "Testo##text" + std::to_string(idx);
 
-            ImGui::Begin(id_str.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs);
+            //std::string id_str = "testo##text" + std::to_string(renderable.id);
+
+            ImGui::Begin(id_str.c_str(), nullptr, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoSavedSettings|ImGuiWindowFlags_NoInputs|ImGuiWindowFlags_AlwaysAutoResize);
 
             //ImGui::Begin(id_str.c_str());
 
@@ -935,7 +937,10 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
     for(int i=0; i < (int)async_renderables.size(); i++)
     {
         render_renderable(async_renderables[i], i);
+    }
 
+    for(int i=0; i < (int)async_renderables.size(); i++)
+    {
         if((async_renderables[i].elapsed.getElapsedTime().asMicroseconds() / 1000. / 1000.) > async_renderables[i].timeout_s)
         {
             async_renderables.erase(async_renderables.begin() + i);
