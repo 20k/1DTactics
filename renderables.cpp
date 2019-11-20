@@ -744,6 +744,31 @@ void playspace_manager::next_turn()
     generate_move_information();
 }
 
+void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, vec2f window_dim, sf::RenderStates& states)
+{
+    sf::RectangleShape shape;
+    shape.setSize({TILE_PIX - 4, TILE_PIX - 4});
+    shape.setOrigin({TILE_PIX/2 - 2, TILE_PIX/2 - 2});
+    shape.setFillColor(sf::Color(0,0,0,0));
+    shape.setOutlineColor(sf::Color(255, 255, 255, 60));
+    shape.setOutlineThickness(1);
+
+    const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
+
+    for(auto& i : dijkstra_info)
+    {
+        if(i.second > entity.model.get_move_distance())
+            continue;
+
+        vec2i pos = i.first;
+
+        vec2f rpos = play.tile_to_screen(pos, window_dim);
+
+        shape.setPosition(rpos.x(), rpos.y());
+        win.draw(shape, states);
+    }
+}
+
 void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 {
     std::vector<sf::Vertex> vertices;
@@ -868,36 +893,17 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
         win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
 
+        ///need to do a hull algo here, but its squares so... i think there's something finickity that can be done
         if(selected_tile.has_value() && !playing_move.has_value())
         {
-            for(tile_object& tile : all_tiles[selected_tile.value().y() * level_size.x() + selected_tile.value().x()])
+            for(tile_object& tile : all_tiles.at(selected_tile.value().y() * level_size.x() + selected_tile.value().x()))
             {
                 if(!tile.entity_id.has_value())
                     continue;
 
-                sf::RectangleShape shape;
-                shape.setSize({TILE_PIX - 4, TILE_PIX - 4});
-                shape.setOrigin({TILE_PIX/2 - 2, TILE_PIX/2 - 2});
-                shape.setFillColor(sf::Color(0,0,0,0));
-                shape.setOutlineColor(sf::Color(255, 255, 255, 60));
-                shape.setOutlineThickness(1);
-
                 entity_object& entity = entities[tile.entity_id.value()];
 
-                const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
-
-                for(auto& i : dijkstra_info)
-                {
-                    if(i.second > entity.model.get_move_distance())
-                        continue;
-
-                    vec2i pos = i.first;
-
-                    vec2f rpos = tile_to_screen(pos, window_half_dim*2);
-
-                    shape.setPosition(rpos.x(), rpos.y());
-                    win.draw(shape, states);
-                }
+                render_move_for_entity(*this, win, entity, window_half_dim * 2, states);
             }
         }
     }
