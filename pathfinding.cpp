@@ -354,5 +354,10 @@ dijkstras_info dijkstras(playspace_manager& play, vec2i start, float max_cost)
         }
     }
 
+    for(auto& i : ret.path_costs)
+    {
+        ret.path_map[i.first] = i.second;
+    }
+
     return ret;
 }
