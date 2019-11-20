@@ -744,7 +744,7 @@ void playspace_manager::next_turn()
     generate_move_information();
 }
 
-void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, vec2f window_dim, sf::RenderStates& states)
+void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, vec2f window_dim
 {
     sf::RectangleShape horizontal_bar;
     horizontal_bar.setSize({TILE_PIX, 2});
@@ -923,7 +923,7 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
                 entity_object& entity = entities[tile.entity_id.value()];
 
-                render_move_for_entity(*this, win, entity, window_half_dim * 2, states);
+                render_move_for_entity(*this, win, entity, window_half_dim * 2);
             }
         }
     }

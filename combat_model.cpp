@@ -216,7 +216,7 @@ creature_model default_trooper_model()
 item default_rifle()
 {
     item_facet range;
-    range.value = 10;
+    range.value = 20;
     range.type = item_facet::RANGE;
 
     item_facet damage;
