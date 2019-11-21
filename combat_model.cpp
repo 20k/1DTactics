@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <imgui/imgui.h>
+#include "renderables.hpp"
 
 std::string format_to_string(float val, int precision)
 {
@@ -239,6 +240,36 @@ item default_rifle()
     ret.name = "PoW_21";
 
     return ret;
+}
+
+///ignores item effects
+float get_terrainwise_hit_probability(const entity_object& source, const entity_object& target, float weapon_shoot_distance)
+{
+    if(weapon_shoot_distance < 1)
+        return 0;
+
+    if(&source == &target)
+        return 0;
+
+    float hit_probability_at_max = 0.4;
+    float hit_probability_at_min = 1;
+
+    vec2f diff = (vec2f){source.tilemap_pos.x(), source.tilemap_pos.y()} - (vec2f){target.tilemap_pos.x(), target.tilemap_pos.y()};
+
+    float len = diff.length();
+
+    if(len <= weapon_shoot_distance)
+    {
+        ///so. at 0 len, we hit 1, and len = weapon_shoot_distance, we hit max = 0.1
+        return mix(hit_probability_at_min, hit_probability_at_max, len / weapon_shoot_distance);
+    }
+
+    if(len <= weapon_shoot_distance + 2)
+    {
+        return mix(hit_probability_at_max, 0.f, (len - weapon_shoot_distance) / 2);
+    }
+
+    return 0.f;
 }
 
 void handle_attack(creature_model& source, creature_model& target, item& with)
