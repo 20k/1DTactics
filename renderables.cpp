@@ -744,13 +744,58 @@ void playspace_manager::next_turn()
     generate_move_information();
 }
 
-void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, vec2f window_dim)
+template<typename T>
+void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& win, float max_distance, T accessible, vec2i centre)
 {
     sf::RectangleShape horizontal_bar;
     horizontal_bar.setSize({TILE_PIX, 2});
     horizontal_bar.setOrigin({horizontal_bar.getSize().x/2, horizontal_bar.getSize().y/2});
     horizontal_bar.setFillColor(sf::Color(120, 170, 170, 255));
 
+    int iceil = ceil(max_distance) + 1;
+
+    vec2i min_pos = centre - (vec2i){iceil, iceil};
+    vec2i max_pos = centre + (vec2i){iceil, iceil};
+
+    min_pos = clamp(min_pos, (vec2i){0, 0}, play.level_size - 1);
+    max_pos = clamp(max_pos, (vec2i){0, 0}, play.level_size - 1);
+
+    for(int ay=min_pos.y(); ay <= (int)max_pos.y(); ay++)
+    {
+        for(int ax=min_pos.x(); ax <= (int)max_pos.x(); ax++)
+        {
+            vec2i absolute_coordinate = {ax, ay};
+
+            if(accessible(absolute_coordinate))
+                continue;
+
+            for(int y=-1; y <= 1; y++)
+            {
+                for(int x=-1; x <= 1; x++)
+                {
+                    if(abs(x) == abs(y))
+                        continue;
+
+                    if(!accessible(absolute_coordinate + (vec2i){x, y}))
+                        continue;
+
+                    float rotation_angle = (vec2f){x, y}.angle() + M_PI/2;
+                    vec2f position = (vec2f){absolute_coordinate.x(), absolute_coordinate.y()} + (vec2f){x, y}/2.f;
+
+                    vec2f screen_pos = play.fractional_tile_to_screen(position, {win.getSize().x, win.getSize().y});
+
+                    horizontal_bar.setPosition(screen_pos.x(), screen_pos.y());
+                    horizontal_bar.setRotation(r2d(rotation_angle));
+
+                    win.draw(horizontal_bar);
+                }
+            }
+        }
+    }
+}
+
+void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, vec2f window_dim)
+{
     float entity_move_distance = entity.model.get_move_distance();
 
     const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
@@ -760,33 +805,7 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
         return entity.cached_dijkstras.get_path_cost_to(pos) <= entity_move_distance;
     };
 
-    for(auto& i : dijkstra_info)
-    {
-        if(accessible(i.first))
-            continue;
-
-        for(int y=-1; y <= 1; y++)
-        {
-            for(int x=-1; x <= 1; x++)
-            {
-                if(abs(x) == abs(y))
-                    continue;
-
-                if(!accessible(i.first + (vec2i){x, y}))
-                    continue;
-
-                float rotation_angle = (vec2f){x, y}.angle() + M_PI/2;
-                vec2f position = (vec2f){i.first.x(), i.first.y()} + (vec2f){x, y}/2.f;
-
-                vec2f screen_pos = play.fractional_tile_to_screen(position, window_dim);
-
-                horizontal_bar.setPosition(screen_pos.x(), screen_pos.y());
-                horizontal_bar.setRotation(r2d(rotation_angle));
-
-                win.draw(horizontal_bar);
-            }
-        }
-    }
+    render_arbitrary_accessibility(play, win, entity_move_distance, accessible, entity.tilemap_pos);
 }
 
 void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
