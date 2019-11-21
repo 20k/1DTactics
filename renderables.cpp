@@ -720,12 +720,22 @@ void playspace_manager::next_turn()
 }
 
 template<typename T>
-void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& win, float max_distance, T accessible, vec2i centre)
+void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& win, float max_distance, T accessible, vec2i centre, vec4f lin_col)
 {
+    vec4f srgb_col = {0,0,0,0};
+
+    srgb_col.x() = lin_to_srgb_approx((vec1f){lin_col.x()});
+    srgb_col.y() = lin_to_srgb_approx((vec1f){lin_col.y()});
+    srgb_col.z() = lin_to_srgb_approx((vec1f){lin_col.z()});
+    srgb_col.w() = lin_col.w();
+
+    srgb_col = srgb_col * 255.f;
+    srgb_col = clamp(srgb_col, 0.f, 255.f);
+
     sf::RectangleShape horizontal_bar;
     horizontal_bar.setSize({TILE_PIX, 2});
     horizontal_bar.setOrigin({horizontal_bar.getSize().x/2, horizontal_bar.getSize().y/2});
-    horizontal_bar.setFillColor(sf::Color(120, 170, 170, 255));
+    horizontal_bar.setFillColor(sf::Color(srgb_col.x(), srgb_col.y(), srgb_col.z(), srgb_col.w()));
 
     int iceil = ceil(max_distance) + 1;
 
@@ -769,7 +779,7 @@ void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& w
     }
 }
 
-void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, vec2f window_dim)
+void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity)
 {
     float entity_move_distance = entity.model.get_move_distance();
 
@@ -780,7 +790,26 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
         return entity.cached_dijkstras.get_path_cost_to(pos) <= entity_move_distance;
     };
 
-    render_arbitrary_accessibility(play, win, entity_move_distance, accessible, entity.tilemap_pos);
+    render_arbitrary_accessibility(play, win, entity_move_distance, accessible, entity.tilemap_pos, {0.47, 0.47, 0.666, 1});
+}
+
+void render_shoot_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, item& with)
+{
+    float shoot_distance = 1;
+
+    if(auto facet_opt = with.get_facet(item_facet::RANGE); facet_opt.has_value())
+    {
+        shoot_distance = facet_opt.value().value;
+    }
+
+    auto accessible = [&](vec2i pos)
+    {
+        float flength = (entity.tilemap_pos - pos).lengthf();
+
+        return flength <= shoot_distance;
+    };
+
+    render_arbitrary_accessibility(play, win, shoot_distance, accessible, entity.tilemap_pos, {0.8, 0.3,0.3, 1});
 }
 
 void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
@@ -906,18 +935,22 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
         states.texture = &spritemap;
 
         win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
+    }
 
-        ///need to do a hull algo here, but its squares so... i think there's something finickity that can be done
-        if(selected_tile.has_value() && !playing_move.has_value())
+    if(selected_tile.has_value() && !playing_move.has_value())
+    {
+        for(tile_object& tile : all_tiles.at(selected_tile.value().y() * level_size.x() + selected_tile.value().x()))
         {
-            for(tile_object& tile : all_tiles.at(selected_tile.value().y() * level_size.x() + selected_tile.value().x()))
+            if(!tile.entity_id.has_value())
+                continue;
+
+            entity_object& entity = entities[tile.entity_id.value()];
+
+            render_move_for_entity(*this, win, entity);
+
+            if(player_building_move.has_value() && player_building_move.value().type == unit_command::SHOOT)
             {
-                if(!tile.entity_id.has_value())
-                    continue;
-
-                entity_object& entity = entities[tile.entity_id.value()];
-
-                render_move_for_entity(*this, win, entity, window_half_dim * 2);
+                render_shoot_for_entity(*this, win,entity, entity.model.inventory.at(player_building_move.value().item_use_id));
             }
         }
     }
