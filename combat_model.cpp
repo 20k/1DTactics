@@ -264,17 +264,19 @@ float get_terrainwise_hit_probability(const entity_object& source, const entity_
         return mix(hit_probability_at_min, hit_probability_at_max, len / weapon_shoot_distance);
     }
 
-    if(len <= weapon_shoot_distance + 2)
+    float extreme_range = 2;
+
+    if(len <= weapon_shoot_distance + extreme_range)
     {
-        return mix(hit_probability_at_max, 0.f, (len - weapon_shoot_distance) / 2);
+        return mix(hit_probability_at_max, 0.f, (len - weapon_shoot_distance) / extreme_range);
     }
 
     return 0.f;
 }
 
-void handle_attack(creature_model& source, creature_model& target, item& with)
+void handle_attack(entity_object& source, entity_object& target, item& with)
 {
-    std::cout << source.name << " shot " << target.name << std::endl;
+    //std::cout << source.name << " shot " << target.name << std::endl;
 
     float accuracy_mod = 1;
 
@@ -290,7 +292,7 @@ void handle_attack(creature_model& source, creature_model& target, item& with)
         damage = facet_val.value().value;
     }
 
-    auto result = target.hit_random_bodypart_for(damage, accuracy_mod);
+    auto result = target.model.hit_random_bodypart_for(damage, accuracy_mod);
 
-    std::cout << "result " << result << std::endl;
+    //std::cout << "result " << result << std::endl;
 }

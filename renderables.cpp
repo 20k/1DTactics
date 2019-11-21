@@ -619,7 +619,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
                         {
                             entity_object& targeted_obj = entities[tobj.entity_id.value()];
 
-                            handle_attack(firer_obj.model, targeted_obj.model, firing_item);
+                            handle_attack(firer_obj, targeted_obj, firing_item);
                             found = true;
                             break;
                         }

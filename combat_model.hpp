@@ -103,7 +103,7 @@ struct creature_model
 struct entity_object;
 
 float get_terrainwise_hit_probability(const entity_object& source, const entity_object& target, float weapon_shoot_distance);
-void handle_attack(creature_model& source, creature_model& target, item& with);
+void handle_attack(entity_object& source, entity_object& target, item& with);
 
 creature_model default_alien_model();
 creature_model default_trooper_model();
