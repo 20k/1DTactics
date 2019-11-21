@@ -171,7 +171,7 @@ int main(int argc, char* argv[])
 
         auto mpos = (vec2f){mxpos, mypos};*/
 
-        auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - screen_absolute_pos;
+        auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - (vec2f){ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y};
 
         level.tick(mpos, {display_w, display_h}, ImGui::GetIO().DeltaTime);
 
@@ -179,6 +179,12 @@ int main(int argc, char* argv[])
             glfwMakeContextCurrent(nullptr);
             win.setActive(true);
             win.resetGLStates();
+
+            if(display_w != win.getSize().x || display_h != win.getSize().y)
+            {
+                win.create(native_handle, sett);
+                win.setVerticalSyncEnabled(true);
+            }
 
             win.clear();
             level.draw(win, mpos);
