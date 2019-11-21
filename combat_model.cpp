@@ -229,7 +229,7 @@ item default_rifle()
     agency.type = item_facet::SHOOTABLE;
 
     item_facet accuracy_mod;
-    accuracy_mod.value = 0.8;
+    accuracy_mod.value = -0.2;
     accuracy_mod.type = item_facet::ACCURACY_MOD;
 
     item ret;
@@ -274,16 +274,28 @@ float get_terrainwise_hit_probability(const entity_object& source, const entity_
     return 0.f;
 }
 
-void handle_attack(entity_object& source, entity_object& target, item& with)
+float get_full_hit_probability(const entity_object& source, const entity_object& target, const item& it)
 {
-    //std::cout << source.name << " shot " << target.name << std::endl;
+    float range = 1;
 
-    float accuracy_mod = 1;
+    if(auto facet_val = it.get_facet(item_facet::RANGE); facet_val.has_value())
+    {
+        range = facet_val.value().value;
+    }
 
-    if(auto facet_val = with.get_facet(item_facet::ACCURACY_MOD); facet_val.has_value())
+    float accuracy_mod = 0;
+
+    if(auto facet_val = it.get_facet(item_facet::ACCURACY_MOD); facet_val.has_value())
     {
         accuracy_mod = facet_val.value().value;
     }
+
+    return get_terrainwise_hit_probability(source, target, range) + accuracy_mod;
+}
+
+void handle_attack(entity_object& source, entity_object& target, item& with)
+{
+    //std::cout << source.name << " shot " << target.name << std::endl;
 
     float damage = 0;
 
@@ -292,7 +304,11 @@ void handle_attack(entity_object& source, entity_object& target, item& with)
         damage = facet_val.value().value;
     }
 
-    auto result = target.model.hit_random_bodypart_for(damage, accuracy_mod);
+    float full_probability = get_full_hit_probability(source, target, with);
 
-    //std::cout << "result " << result << std::endl;
+    std::cout << "terrain prob " << full_probability << std::endl;
+
+    auto result = target.model.hit_random_bodypart_for(damage, full_probability);
+
+    std::cout << "result " << result << std::endl;
 }

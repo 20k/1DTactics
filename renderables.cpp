@@ -429,7 +429,7 @@ void render_hit_probabilities(playspace_manager& play, entity_object& eobject, i
 
                 const entity_object& target_entity = play.entities[tobj.entity_id.value()];
 
-                float hit_probability = get_terrainwise_hit_probability(eobject, target_entity, weapon_shoot_distance);
+                float hit_probability = get_full_hit_probability(eobject, target_entity, weapon);
 
                 if(hit_probability <= 0.0f)
                     continue;
