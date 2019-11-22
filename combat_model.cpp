@@ -259,7 +259,7 @@ float get_terrainwise_hit_probability(const entity_object& source, const entity_
         return 0;
 
     if(&source == &target)
-        return 0;
+        return 1;
 
     float hit_probability_at_max = 0.4;
     float hit_probability_at_min = 1;
@@ -300,7 +300,9 @@ float get_full_hit_probability(const entity_object& source, const entity_object&
         accuracy_mod = facet_val.value().value;
     }
 
-    return clamp(get_terrainwise_hit_probability(source, target, range) + accuracy_mod, 0, 1);
+    float terrain_prob = get_terrainwise_hit_probability(source, target, range);
+
+    return clamp(terrain_prob + accuracy_mod, 0.f, 1.f);
 }
 
 void handle_attack(entity_object& source, entity_object& target, item& with)

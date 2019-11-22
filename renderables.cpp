@@ -434,6 +434,9 @@ void render_hit_probabilities(playspace_manager& play, entity_object& eobject, i
                 if(hit_probability <= 0.0f)
                     continue;
 
+                if(&eobject == &target_entity)
+                    continue;
+
                 play.render_text_at(format_to_string(hit_probability*100, 0) + "%%", play.tile_to_screen(target_entity.tilemap_pos, play.screen_dimensions), 0.f);
             }
         }
@@ -618,6 +621,9 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
                         if(tobj.entity_id.has_value())
                         {
                             entity_object& targeted_obj = entities[tobj.entity_id.value()];
+
+                            if(&targeted_obj == &firer_obj)
+                                continue;
 
                             handle_attack(firer_obj, targeted_obj, firing_item);
                             found = true;
