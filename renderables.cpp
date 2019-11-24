@@ -218,10 +218,10 @@ vec4f special_colour_randomisation(vec4f rcol, vec2i tile_id, tiles::types type)
 
 void playspace_manager::generate_move_information()
 {
-    for(auto& i : entities)
+    /*for(auto& i : entities)
     {
         i.second.cached_dijkstras = dijkstras(*this, i.second.tilemap_pos, i.second.model.get_move_distance());
-    }
+    }*/
 }
 
 void playspace_manager::create_level(vec2i dim, level_info::types type)
@@ -814,11 +814,11 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
 {
     float entity_move_distance = entity.model.get_move_distance();
 
-    const std::vector<std::pair<vec2i, float>>& dijkstra_info = entity.cached_dijkstras.path_costs;
+    auto all_info = entity.model.get_dijkstras_for_ap_move(play, entity.tilemap_pos, 1);
 
     auto accessible = [&](vec2i pos)
     {
-        return entity.cached_dijkstras.get_path_cost_to(pos) <= entity_move_distance;
+        return all_info.get_path_cost_to(pos) <= entity_move_distance;
     };
 
     render_arbitrary_accessibility(play, win, entity_move_distance, accessible, entity.tilemap_pos, {0.47, 0.47, 0.666, 1});

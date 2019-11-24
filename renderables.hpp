@@ -100,7 +100,7 @@ struct entity_object
 
     ai_disposition::types disposition = ai_disposition::NONE;
 
-    dijkstras_info cached_dijkstras;
+    //dijkstras_info cached_dijkstras;
 };
 
 struct unit_command

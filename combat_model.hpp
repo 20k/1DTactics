@@ -108,6 +108,9 @@ struct creature_ap
     void do_regen();
 };
 
+struct playspace_manager;
+struct dijkstras_info;
+
 struct creature_model
 {
     std::string name = "No Name";
@@ -123,6 +126,8 @@ struct creature_model
     void add_item(const item& it);
     ///renders current ui state into an existing window
     void append_rendering();
+
+    dijkstras_info get_dijkstras_for_ap_move(playspace_manager& play, vec2i position, int ap_usage);
 
     /*float get_aim_accuracy_fraction();
     float get_shoot_range();

@@ -138,7 +138,7 @@ combat_info::hit_types creature_model::hit_random_bodypart_for(float damage, flo
 
 float creature_model::get_move_distance() const
 {
-    return 4.f;
+    return 5.f;
 }
 
 void creature_model::add_item(const item& it)
@@ -169,6 +169,11 @@ void creature_model::append_rendering()
 
         ImGui::Text(hp_2.c_str());
     }
+}
+
+dijkstras_info creature_model::get_dijkstras_for_ap_move(playspace_manager& play, vec2i position, int ap_usage)
+{
+    return dijkstras(play, position, get_move_distance() * ap_usage);
 }
 
 creature_model default_alien_model()
