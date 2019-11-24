@@ -812,9 +812,11 @@ void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& w
 
 void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity)
 {
-    float entity_move_distance = entity.model.get_move_distance();
+    int ap_usage = 3;
 
-    auto all_info = entity.model.get_dijkstras_for_ap_move(play, entity.tilemap_pos, 1);
+    float entity_move_distance = entity.model.get_move_distance() * ap_usage;
+
+    auto all_info = entity.model.get_dijkstras_for_ap_move(play, entity.tilemap_pos, ap_usage);
 
     auto accessible = [&](vec2i pos)
     {

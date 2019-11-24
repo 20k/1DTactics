@@ -40,13 +40,14 @@ std::optional<std::vector<vec2i>> dijkstras_info::reconstruct_path(vec2i finish)
 
 float dijkstras_info::get_path_cost_to(vec2i finish)
 {
-    for(auto& i : path_costs)
-    {
-        if(i.first == finish)
-            return i.second;
-    }
+    if(finish.x() < min_pos.x() || finish.y() < min_pos.y() || finish.x() >= max_pos.x() || finish.y() >= max_pos.y())
+        return FLT_MAX;
 
-    return FLT_MAX;
+    vec2i local_pos = finish - min_pos;
+
+    int dim = max_pos.x() - min_pos.x();
+
+    return path_costs[local_pos.y() * dim + local_pos.x()].second;
 }
 
 template<typename T>
