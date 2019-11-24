@@ -83,6 +83,23 @@ void body_part::hit(float damage)
     hp = clamp(hp, 0, max_hp);
 }
 
+
+bool creature_ap::can_do_type(types type)
+{
+    return current >= costs.at((int)type);
+}
+
+void creature_ap::do_type(types type)
+{
+    current -= costs.at((int)type);
+}
+
+void creature_ap::do_regen()
+{
+    current += current_regen;
+    current = clamp(current, 0, maximum);
+}
+
 ///shooting self is causing a crash
 combat_info::hit_types creature_model::hit_random_bodypart_for(float damage, float probability_modification)
 {
@@ -121,7 +138,7 @@ combat_info::hit_types creature_model::hit_random_bodypart_for(float damage, flo
 
 float creature_model::get_move_distance() const
 {
-    return 10.f;
+    return 4.f;
 }
 
 void creature_model::add_item(const item& it)

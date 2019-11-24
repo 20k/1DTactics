@@ -443,6 +443,59 @@ void render_hit_probabilities(playspace_manager& play, entity_object& eobject, i
     }
 }
 
+void render_entity_ui(playspace_manager& play, entity_object& eobj)
+{
+    if(eobj.disposition != ai_disposition::NONE)
+    {
+        ImGui::Begin("Enemy Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+        eobj.model.append_rendering();
+
+        ImGui::End();
+    }
+    else
+    {
+        ImGui::Begin("Creature Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+        eobj.model.append_rendering();
+
+        if(ImGui::Button("Move"))
+        {
+            unit_command command;
+            command.type = unit_command::MOVE;
+            command.unit_id = eobj.my_id;
+
+            play.player_building_move = command;
+        }
+
+        creature_model& cmodel = eobj.model;
+
+        for(int idx = 0; idx < (int)cmodel.inventory.size(); idx++)
+        {
+            item& it = cmodel.inventory[idx];
+
+            if(!it.get_facet(item_facet::SHOOTABLE).has_value())
+                continue;
+
+            ImGui::Text(it.name.c_str());
+
+            ImGui::SameLine();
+
+            if(ImGui::Button("Shoot"))
+            {
+                unit_command command;
+                command.type = unit_command::SHOOT;
+                command.unit_id = eobj.my_id;
+                command.item_use_id = idx;
+
+                play.player_building_move = command;
+            }
+        }
+
+        ImGui::End();
+    }
+}
+
 void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 {
     vec2f dir;
@@ -519,55 +572,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
             entity_object& eobj = entities[obj.entity_id.value()];
 
-            if(eobj.disposition != ai_disposition::NONE)
-            {
-                ImGui::Begin("Enemy Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-
-                eobj.model.append_rendering();
-
-                ImGui::End();
-            }
-            else
-            {
-                ImGui::Begin("Creature Info", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-
-                eobj.model.append_rendering();
-
-                if(ImGui::Button("Move"))
-                {
-                    unit_command command;
-                    command.type = unit_command::MOVE;
-                    command.unit_id = obj.entity_id.value();
-
-                    player_building_move = command;
-                }
-
-                creature_model& cmodel = eobj.model;
-
-                for(int idx = 0; idx < (int)cmodel.inventory.size(); idx++)
-                {
-                    item& it = cmodel.inventory[idx];
-
-                    if(!it.get_facet(item_facet::SHOOTABLE).has_value())
-                        continue;
-
-                    ImGui::Text(it.name.c_str());
-
-                    ImGui::SameLine();
-
-                    if(ImGui::Button("Shoot"))
-                    {
-                        unit_command command;
-                        command.type = unit_command::SHOOT;
-                        command.unit_id = obj.entity_id.value();
-                        command.item_use_id = idx;
-
-                        player_building_move = command;
-                    }
-                }
-
-                ImGui::End();
-            }
+            render_entity_ui(*this, eobj);
         }
     }
 
@@ -705,6 +710,11 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
     }
 }
 
+bool is_unit_hostile(entity_object& eobj)
+{
+    return eobj.disposition == ai_disposition::HOSTILE;
+}
+
 void playspace_manager::next_turn()
 {
     ///uuh who knows
@@ -723,6 +733,21 @@ void playspace_manager::next_turn()
 
     player_building_move = std::nullopt;
     generate_move_information();
+
+    bool in_hostile_turn = (turn % 2) == 1;
+
+    for(auto& i : entities)
+    {
+        if(is_unit_hostile(i.second) && in_hostile_turn)
+        {
+            i.second.model.ap_model.do_regen();
+        }
+
+        if(!is_unit_hostile(i.second) && !in_hostile_turn)
+        {
+            i.second.model.ap_model.do_regen();
+        }
+    }
 }
 
 template<typename T>

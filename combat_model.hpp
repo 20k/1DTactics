@@ -79,12 +79,42 @@ struct body_part
     void hit(float damage);
 };
 
+struct creature_ap
+{
+    int32_t current = 0;
+    int32_t maximum = 4;
+    int32_t current_regen = 3;
+    int32_t base_regen = 3;
+
+    enum types
+    {
+        MOVE,
+        SHOOT,
+        THROW,
+        BRACE,
+    };
+
+    static inline
+    std::vector<int32_t> costs
+    {
+        1,
+        2,
+        2,
+        1,
+    };
+
+    bool can_do_type(types type);
+    void do_type(types type);
+    void do_regen();
+};
+
 struct creature_model
 {
     std::string name = "No Name";
     std::vector<body_part> parts;
 
     std::vector<item> inventory;
+    creature_ap ap_model;
 
     combat_info::hit_types hit_random_bodypart_for(float damage, float probability_modification);
     float get_move_speed_fraction();
