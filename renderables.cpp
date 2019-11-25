@@ -768,8 +768,10 @@ void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& w
     srgb_col = srgb_col * 255.f;
     srgb_col = clamp(srgb_col, 0.f, 255.f);
 
+    float width = 2;
+
     sf::RectangleShape horizontal_bar;
-    horizontal_bar.setSize({TILE_PIX, 2});
+    horizontal_bar.setSize({TILE_PIX, width});
     horizontal_bar.setOrigin({horizontal_bar.getSize().x/2, horizontal_bar.getSize().y/2});
     horizontal_bar.setFillColor(sf::Color(srgb_col.x(), srgb_col.y(), srgb_col.z(), srgb_col.w()));
 
@@ -823,7 +825,7 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
     {
         (vec4f){0.47, 0.47, 0.666, 1},
         (vec4f){1, 0.7, 0.3, 1},
-        (vec4f){1, 0.3, 0.3, 1},
+        (vec4f){0.3, 1, 0.3, 1},
     };
 
     ///render closer aps last
