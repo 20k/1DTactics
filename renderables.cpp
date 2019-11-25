@@ -331,6 +331,11 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
     }
 
     generate_move_information();
+
+    for(auto& i : entities)
+    {
+        i.second.model.ap_model.do_regen();
+    }
 }
 
 unit_command enemy_step_single(playspace_manager& playspace, entity_object& to_step)
@@ -812,18 +817,35 @@ void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& w
 
 void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity)
 {
-    int ap_usage = 3;
+    int ap_usage = entity.model.ap_model.current;
 
-    float entity_move_distance = entity.model.get_move_distance() * ap_usage;
-
-    auto all_info = entity.model.get_dijkstras_for_ap_move(play, entity.tilemap_pos, ap_usage);
-
-    auto accessible = [&](vec2i pos)
+    std::array<vec4f, 3> cols =
     {
-        return all_info.get_path_cost_to(pos) <= entity_move_distance;
+        (vec4f){0.47, 0.47, 0.666, 1},
+        (vec4f){1, 0.7, 0.3, 1},
+        (vec4f){1, 0.3, 0.3, 1},
     };
 
-    render_arbitrary_accessibility(play, win, entity_move_distance, accessible, entity.tilemap_pos, {0.47, 0.47, 0.666, 1});
+    ///render closer aps last
+    for(int i=ap_usage; i >= 1; i--)
+    {
+        float entity_move_distance = entity.model.get_move_distance() * i;
+
+        auto all_info = entity.model.get_dijkstras_for_ap_move(play, entity.tilemap_pos, i);
+
+        auto accessible = [&](vec2i pos)
+        {
+            return all_info.get_path_cost_to(pos) <= entity_move_distance;
+        };
+
+        vec4f col = {1,1,1,1};
+
+        if(i - 1 < (int)cols.size())
+            col = cols[i - 1];
+
+        render_arbitrary_accessibility(play, win, entity_move_distance, accessible, entity.tilemap_pos, col);
+    }
+
 }
 
 void render_shoot_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, item& with)

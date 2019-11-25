@@ -138,7 +138,7 @@ combat_info::hit_types creature_model::hit_random_bodypart_for(float damage, flo
 
 float creature_model::get_move_distance() const
 {
-    return 50.f;
+    return 5.f;
 }
 
 void creature_model::add_item(const item& it)
