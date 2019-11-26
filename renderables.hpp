@@ -150,6 +150,7 @@ struct playspace_manager
 
     vec2f camera_pos;
     vec2f screen_dimensions;
+    vec2f window_pos;
     float zoom = 1;
 
     vec2i level_size = {0,0};

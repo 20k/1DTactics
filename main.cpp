@@ -132,14 +132,19 @@ int main(int argc, char* argv[])
 
     render_window win;
 
-    int display_w, display_h;
+    int display_w = 0;
+    int display_h = 0;
+    int wxpos = 0;
+    int wypos = 0;
 
     glfwGetFramebufferSize(window, &display_w, &display_h);
+    glfwGetWindowPos(window, &wxpos, &wypos);
 
     playspace_manager level;
     level.screen_dimensions = {display_w, display_h};
     level.create_level({1000, 1000}, level_info::GRASS);
     level.camera_pos = {display_w/2, display_h/2};
+    level.window_pos = {wxpos, wypos};
 
     //win.setActive(false);
     //glfwMakeContextCurrent(window);
@@ -164,9 +169,9 @@ int main(int argc, char* argv[])
         if(ImGui::IsKeyDown(GLFW_KEY_N))
             std::cout << ImGui::GetIO().DeltaTime << std::endl;
 
-        int wxpos = 0;
-        int wypos = 0;
         glfwGetWindowPos(window, &wxpos, &wypos);
+
+        level.window_pos = {wxpos, wypos};
 
         vec2f screen_absolute_pos = {wxpos, wypos};
 
@@ -176,7 +181,7 @@ int main(int argc, char* argv[])
 
         auto mpos = (vec2f){mxpos, mypos};*/
 
-        auto mpos = (vec2f){io.MousePos.x, io.MousePos.y} - (vec2f){ImGui::GetMainViewport()->Pos.x, ImGui::GetMainViewport()->Pos.y};
+        auto mpos = (vec2f){io.MousePos.x, io.MousePos.y};
 
         level.tick(mpos, {display_w, display_h}, ImGui::GetIO().DeltaTime);
 

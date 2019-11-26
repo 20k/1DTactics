@@ -946,10 +946,12 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
                     brightness = 0.3;
                 }
 
-                vec2f logical_pos = (vec2f){x, y} * TILE_PIX;
+                /*vec2f logical_pos = (vec2f){x, y} * TILE_PIX;
                 vec2f real_pos = logical_pos - camera_pos;
 
-                real_pos += window_half_dim;
+                real_pos += window_half_dim;*/
+
+                vec2f real_pos = tile_to_screen({x, y}, screen_dimensions);
 
                 //real_pos = round(real_pos);
 
@@ -1176,7 +1178,7 @@ std::optional<std::vector<vec2i>> playspace_manager::pathfind(vec2i start, vec2i
 
 std::optional<vec2i> playspace_manager::screen_to_tile(vec2f screen_pos, vec2f screen_dimensions)
 {
-    vec2f relative = screen_pos - screen_dimensions/2.f + camera_pos;
+    vec2f relative = screen_pos - screen_dimensions/2.f + camera_pos - window_pos;
 
     vec2f tile_coord = round(relative / (float)TILE_PIX);
 
@@ -1190,14 +1192,14 @@ std::optional<vec2i> playspace_manager::screen_to_tile(vec2f screen_pos, vec2f s
 
 vec2f playspace_manager::tile_to_screen(vec2i tile_pos, vec2f screen_dimensions)
 {
-    vec2f relative = (vec2f){tile_pos.x(), tile_pos.y()} * TILE_PIX - camera_pos + screen_dimensions/2.f;
+    vec2f relative = (vec2f){tile_pos.x(), tile_pos.y()} * TILE_PIX - camera_pos + screen_dimensions/2.f + window_pos;
 
     return relative;
 }
 
 vec2f playspace_manager::fractional_tile_to_screen(vec2f tile_pos, vec2f screen_dimensions)
 {
-    vec2f relative = tile_pos * TILE_PIX - camera_pos + screen_dimensions/2.f;
+    vec2f relative = tile_pos * TILE_PIX - camera_pos + screen_dimensions/2.f + window_pos;
 
     return relative;
 }
