@@ -262,11 +262,11 @@ void playspace_manager::create_level(vec2i dim, level_info::types type)
         }
     }
 
-    spritemap.loadFromImage(spritemap_unprocessed);
+    spritemap_tex.load_from_image(spritemap_unprocessed);
     //spritemap.loadFromFile("./assets/colored_transparent.png");
     //spritemap.setSrgb(true);
 
-    std::cout << "SXDIM " << spritemap.getSize().x << std::endl;
+    //std::cout << "SXDIM " << spritemap.getSize().x << std::endl;
 
     level_size = dim;
     all_tiles.resize(level_size.x() * level_size.y());
@@ -983,15 +983,10 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
 
                 vec2i texture_coordinate = renderable.tile_id * (TILE_PIX + TILE_SEP);
 
-                /*vec2f tltx = {texture_coordinate.x(), texture_coordinate.y()};
+                vec2f tltx = {texture_coordinate.x(), texture_coordinate.y()};
                 vec2f trtx = {texture_coordinate.x() + TILE_PIX, texture_coordinate.y()};
                 vec2f brtx = {texture_coordinate.x() + TILE_PIX, texture_coordinate.y() + TILE_PIX};
-                vec2f bltx = {texture_coordinate.x(), texture_coordinate.y() + TILE_PIX};*/
-
-                vec2f tltx = {0, 0};
-                vec2f trtx = {TILE_PIX, 0};
-                vec2f brtx = {TILE_PIX, TILE_PIX};
-                vec2f bltx = {0, TILE_PIX};
+                vec2f bltx = {texture_coordinate.x(), texture_coordinate.y() + TILE_PIX};
 
                 float shade = 0.05;
 
@@ -1018,19 +1013,16 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
 
     if(vertices.size() > 0)
     {
-        sf::RenderStates states;
+        /*sf::RenderStates states;
         states.blendMode = sf::BlendAlpha;
-        states.texture = &spritemap;
+        states.texture = &spritemap;*/
 
-        win.draw(vertices, sf::PrimitiveType::Triangles, states);
+        win.draw(vertices, sf::PrimitiveType::Triangles, &spritemap_tex);
     }
 
     ///think its context stuff again screwing me
-    ImTextureID itexid = nullptr;
-    GLuint native_handle = spritemap.getNativeHandle();
-    memcpy(&itexid, &native_handle, sizeof(GLuint));
 
-    ImGui::Image(itexid, {800, 800}, {0,0}, {1,1});
+    ImGui::Image((void*)spritemap_tex.tex_handle, {800, 800}, {0,0}, {1,1});
 
     //ImGui::GetWindowDrawList()->AddImage();
 

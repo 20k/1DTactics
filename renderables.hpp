@@ -143,7 +143,7 @@ struct async_renderable
 
 struct playspace_manager
 {
-    sf::Texture spritemap;
+    texture spritemap_tex;
 
     static inline uint64_t entity_gid = 0;
     static inline uint64_t squad_gid = 0;

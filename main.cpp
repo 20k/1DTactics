@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
     level.camera_pos = {display_w/2, display_h/2};
 
     //win.setActive(false);
-    glfwMakeContextCurrent(window);
+    //glfwMakeContextCurrent(window);
 
     bool running = true;
 
@@ -238,7 +238,7 @@ int main(int argc, char* argv[])
 
         win.setActive(false);
         glfwMakeContextCurrent(window);*/
-        glfwMakeContextCurrent(window);
+        //glfwMakeContextCurrent(window);
         glfwSwapBuffers(window);
     }
 
