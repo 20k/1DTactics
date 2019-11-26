@@ -898,7 +898,7 @@ void render_shoot_for_entity(playspace_manager& play, render_window& win, entity
 
 void playspace_manager::draw(render_window& win, vec2f mpos)
 {
-    std::vector<sf::Vertex> vertices;
+    std::vector<vertex> vertices;
     vertices.reserve(level_size.y() * level_size.x() * 6);
 
     vec2f window_half_dim = screen_dimensions/2.f;
@@ -918,6 +918,8 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
     y_end = clamp(y_end, 0, level_size.y());
 
     auto mouse_tile_opt = screen_to_tile(mpos, screen_dimensions);
+
+    vec2f uv_scale = {1.f/spritemap_tex.dim.x(), 1.f/spritemap_tex.dim.y()};
 
     for(int y=y_start; y < level_size.y() && y < y_end; y++)
     {
@@ -990,6 +992,11 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
                 vec2f brtx = {texture_coordinate.x() + TILE_PIX, texture_coordinate.y() + TILE_PIX};
                 vec2f bltx = {texture_coordinate.x(), texture_coordinate.y() + TILE_PIX};
 
+                tltx = tltx * uv_scale;
+                trtx = trtx * uv_scale;
+                brtx = brtx * uv_scale;
+                bltx = bltx * uv_scale;
+
                 float shade = 0.05;
 
                 vec4f tl_col = clamp(base_colour*(1 + shade) * brightness, 0, 1);
@@ -998,18 +1005,18 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
                 vec4f bl_col = clamp(base_colour * brightness, 0, 1);
 
                 ///loss of precision, need to put floats through and let the render deal with it
-                sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z() * 255, tl_col.w() * 255);
+                /*sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z() * 255, tl_col.w() * 255);
                 sf::Color sfcol_tr(tr_col.x() * 255, tr_col.y() * 255, tr_col.z() * 255, tr_col.w() * 255);
                 sf::Color sfcol_br(br_col.x() * 255, br_col.y() * 255, br_col.z() * 255, br_col.w() * 255);
-                sf::Color sfcol_bl(bl_col.x() * 255, bl_col.y() * 255, bl_col.z() * 255, bl_col.w() * 255);
+                sf::Color sfcol_bl(bl_col.x() * 255, bl_col.y() * 255, bl_col.z() * 255, bl_col.w() * 255);*/
 
-                vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol_tl, {tltx.x(), tltx.y()}));
-                vertices.push_back(sf::Vertex({bl.x(), bl.y()}, sfcol_bl, {bltx.x(), bltx.y()}));
-                vertices.push_back(sf::Vertex({br.x(), br.y()}, sfcol_br, {brtx.x(), brtx.y()}));
+                vertices.push_back({tl, tl_col, tltx});
+                vertices.push_back({bl, bl_col, bltx});
+                vertices.push_back({br, br_col, brtx});
 
-                vertices.push_back(sf::Vertex({tl.x(), tl.y()}, sfcol_tl, {tltx.x(), tltx.y()}));
-                vertices.push_back(sf::Vertex({br.x(), br.y()}, sfcol_br, {brtx.x(), brtx.y()}));
-                vertices.push_back(sf::Vertex({tr.x(), tr.y()}, sfcol_tr, {trtx.x(), trtx.y()}));
+                vertices.push_back({tl, tl_col, tltx});
+                vertices.push_back({br, br_col, brtx});
+                vertices.push_back({tr, tr_col, trtx});
             }
         }
     }
