@@ -47,13 +47,13 @@ int main(int argc, char* argv[])
 
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     //glfwWindowHint( GLFW_DOUBLEBUFFER, GL_FALSE );
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
     //glfwWindowHint(GLFW_SAMPLES, 8);
 
-    glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
+    //glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
     GLFWwindow* window = glfwCreateWindow(window_size.x(), window_size.y(), "Falling Sand Sim", NULL, NULL);
 
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
 
-    ImGui::SetStyleLinearColor(true);
+    //ImGui::SetStyleLinearColor(true);
 
     io.Fonts->Clear();
     io.Fonts->AddFontDefault();
