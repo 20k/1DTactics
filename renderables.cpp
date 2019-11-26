@@ -983,10 +983,15 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
 
                 vec2i texture_coordinate = renderable.tile_id * (TILE_PIX + TILE_SEP);
 
-                vec2f tltx = {texture_coordinate.x(), texture_coordinate.y()};
+                /*vec2f tltx = {texture_coordinate.x(), texture_coordinate.y()};
                 vec2f trtx = {texture_coordinate.x() + TILE_PIX, texture_coordinate.y()};
                 vec2f brtx = {texture_coordinate.x() + TILE_PIX, texture_coordinate.y() + TILE_PIX};
-                vec2f bltx = {texture_coordinate.x(), texture_coordinate.y() + TILE_PIX};
+                vec2f bltx = {texture_coordinate.x(), texture_coordinate.y() + TILE_PIX};*/
+
+                vec2f tltx = {0, 0};
+                vec2f trtx = {TILE_PIX, 0};
+                vec2f brtx = {TILE_PIX, TILE_PIX};
+                vec2f bltx = {0, TILE_PIX};
 
                 float shade = 0.05;
 
@@ -1019,6 +1024,15 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
 
         win.draw(vertices, sf::PrimitiveType::Triangles, states);
     }
+
+    ///think its context stuff again screwing me
+    ImTextureID itexid = nullptr;
+    GLuint native_handle = spritemap.getNativeHandle();
+    memcpy(&itexid, &native_handle, sizeof(GLuint));
+
+    ImGui::Image(itexid, {800, 800}, {0,0}, {1,1});
+
+    //ImGui::GetWindowDrawList()->AddImage();
 
     if(selected_tile.has_value() && !playing_move.has_value())
     {

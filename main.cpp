@@ -192,6 +192,7 @@ int main(int argc, char* argv[])
             }
 
             win.clear();*/
+
             level.draw(win, mpos);
         }
 
@@ -212,8 +213,11 @@ int main(int argc, char* argv[])
         glfwMakeContextCurrent(window);
 
         glViewport(0, 0, display_w, display_h);
-        glDrawBuffer(GL_BACK);
-        glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
+
+        glClearColor(0,0,0,1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        //glDrawBuffer(GL_BACK);
+        //glBindFramebufferEXT(GL_DRAW_FRAMEBUFFER, 0);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         if(io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
