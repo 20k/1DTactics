@@ -921,6 +921,8 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
 
     vec2f uv_scale = {1.f/spritemap_tex.dim.x(), 1.f/spritemap_tex.dim.y()};
 
+    bool in_hostile_turn = (turn % 2) == 1;
+
     for(int y=y_start; y < level_size.y() && y < y_end; y++)
     {
         for(int x=x_start; x < level_size.x() && x < x_end; x++)
@@ -1039,6 +1041,12 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
 
             entity_object& entity = entities[tile.entity_id.value()];
 
+            //if(is_unit_hostile(entity) && !in_hostile_turn)
+            //    continue;
+
+            if(!is_unit_hostile(entity) && in_hostile_turn)
+                continue;
+
             render_move_for_entity(*this, win, entity);
 
             if(player_building_move.has_value() && player_building_move.value().type == unit_command::SHOOT)
@@ -1054,7 +1062,7 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
 
         if(renderable.type == async_renderable::TEXT)
         {
-            vec2f spos = {renderable.screen_pos.x() + ImGui::GetMainViewport()->Pos.x, renderable.screen_pos.y() + ImGui::GetMainViewport()->Pos.y};
+            vec2f spos = {renderable.screen_pos.x(), renderable.screen_pos.y()};
 
             ImGui::SetNextWindowPos({spos.x(), spos.y()});
 
