@@ -37,7 +37,7 @@ void render_window::draw(const std::vector<vertex>& vertices, sf::PrimitiveType 
 
         vec3f srgb_col = lin_to_srgb(vertices[i].colour.xyz()) * 255.f;
 
-        vtx_write[i].col = IM_COL32((int)srgb_col.x(), (int)srgb_col.y(), (int)srgb_col.z(), 255);
+        vtx_write[i].col = IM_COL32((int)srgb_col.x(), (int)srgb_col.y(), (int)srgb_col.z(), (int)(vertices[i].colour.w() * 255));
 
         idx_write[i] = vtx_current_idx + i;
     }
@@ -78,7 +78,7 @@ void render_window::draw(const sf::Shape& shape)
 
         vertex vert;
         vert.position = {real_pos_1.x, real_pos_1.y};
-        vert.colour = {lin_col.x(), lin_col.y(), lin_col.z(), scol.a};
+        vert.colour = {lin_col.x(), lin_col.y(), lin_col.z(), scol.a / 255.f};
         vert.uv = {ImGui::GetDrawListSharedData()->TexUvWhitePixel.x, ImGui::GetDrawListSharedData()->TexUvWhitePixel.y};
 
         vertex vert2 = vert;
