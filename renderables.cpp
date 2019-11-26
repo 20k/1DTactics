@@ -997,6 +997,7 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
                 vec4f br_col = clamp(base_colour*(1 - shade) * brightness, 0, 1);
                 vec4f bl_col = clamp(base_colour * brightness, 0, 1);
 
+                ///loss of precision, need to put floats through and let the render deal with it
                 sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z() * 255, tl_col.w() * 255);
                 sf::Color sfcol_tr(tr_col.x() * 255, tr_col.y() * 255, tr_col.z() * 255, tr_col.w() * 255);
                 sf::Color sfcol_br(br_col.x() * 255, br_col.y() * 255, br_col.z() * 255, br_col.w() * 255);
