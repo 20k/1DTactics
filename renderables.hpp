@@ -8,6 +8,7 @@
 #include <optional>
 #include "pathfinding.hpp"
 #include "combat_model.hpp"
+#include "render_window.hpp"
 
 #define TILE_PIX 16
 #define TILE_SEP 1
@@ -164,7 +165,7 @@ struct playspace_manager
 
     void tick(vec2f mpos, vec2f screen_dimensions, double dt_s);
     void next_turn();
-    void draw(sf::RenderTarget& win, vec2f mpos);
+    void draw(render_window& win, vec2f mpos);
 
     uint64_t turn = 0;
     bool step_enemies = false;

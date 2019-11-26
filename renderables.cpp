@@ -497,6 +497,10 @@ void render_entity_ui(playspace_manager& play, entity_object& eobj)
             }
         }
 
+        std::string ap_text = "AP: " + std::to_string(eobj.model.ap_model.current) + "/" + std::to_string(eobj.model.ap_model.maximum);
+
+        ImGui::Text(ap_text.c_str());
+
         ImGui::End();
     }
 }
@@ -596,13 +600,29 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
         {
             if(ImGui::IsMouseClicked(0) && can_click)
             {
+                entity_object& obj = entities[val.unit_id];
+
                 if(val.type == unit_command::MOVE)
                 {
-                    const entity_object& obj = entities[val.unit_id];
+                    float move_distance = obj.model.get_move_distance();
+                    dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, move_distance);
+                    float path_cost = inf.get_path_cost_to(mpos_opt.value());
 
-                    dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, obj.model.get_move_distance());
+                    int ap_cost = 0;
 
-                    if(inf.get_path_cost_to(mpos_opt.value()) <= obj.model.get_move_distance())
+                    if(move_distance > 0)
+                    {
+                        assert(path_cost >= 0);
+                        assert(move_distance > 0);
+
+                        std::cout <<" PATH COST " << path_cost <<"  MOVE DIST " << move_distance << std::endl;
+
+                        ap_cost = ceil(path_cost / move_distance);
+
+                        std::cout << "AP COST " << ap_cost << std::endl;
+                    }
+
+                    if(ap_cost <= obj.model.ap_model.current)
                     {
                         std::optional<std::vector<vec2i>> path = inf.reconstruct_path(mpos_opt.value());
 
@@ -612,14 +632,21 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
                             val.update_focus = true;
                             playing_move = val;
                             player_building_move = std::nullopt;
+
+                            obj.model.ap_model.current -= ap_cost;
+                            std::cout << "CURRENT " << obj.model.ap_model.current << std::endl;
+
+                            assert(obj.model.ap_model.current >= 0);
                         }
                     }
                 }
 
                 ///need to do visibility probability stuff
-                if(val.type == unit_command::SHOOT)
+                if(val.type == unit_command::SHOOT && obj.model.ap_model.can_do_type(creature_ap::SHOOT))
                 {
-                    entity_object& firer_obj = entities[val.unit_id];
+                    obj.model.ap_model.do_type(creature_ap::SHOOT);
+
+                    entity_object& firer_obj = obj;
                     item& firing_item = firer_obj.model.inventory.at(val.item_use_id);
 
                     int tile_idx = mpos_opt.value().y() * level_size.x() + mpos_opt.value().x();
@@ -756,7 +783,7 @@ void playspace_manager::next_turn()
 }
 
 template<typename T>
-void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& win, float max_distance, T accessible, vec2i centre, vec4f lin_col)
+void render_arbitrary_accessibility(playspace_manager& play, render_window& win, float max_distance, T accessible, vec2i centre, vec4f lin_col)
 {
     vec4f srgb_col = {0,0,0,0};
 
@@ -805,7 +832,7 @@ void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& w
                     float rotation_angle = (vec2f){x, y}.angle() + M_PI/2;
                     vec2f position = (vec2f){absolute_coordinate.x(), absolute_coordinate.y()} + (vec2f){x, y}/2.f;
 
-                    vec2f screen_pos = play.fractional_tile_to_screen(position, {win.getSize().x, win.getSize().y});
+                    vec2f screen_pos = play.fractional_tile_to_screen(position, play.screen_dimensions);
 
                     horizontal_bar.setPosition(screen_pos.x(), screen_pos.y());
                     horizontal_bar.setRotation(r2d(rotation_angle));
@@ -817,7 +844,7 @@ void render_arbitrary_accessibility(playspace_manager& play, sf::RenderTarget& w
     }
 }
 
-void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity)
+void render_move_for_entity(playspace_manager& play, render_window& win, entity_object& entity)
 {
     int ap_usage = entity.model.ap_model.current;
 
@@ -850,7 +877,7 @@ void render_move_for_entity(playspace_manager& play, sf::RenderTarget& win, enti
 
 }
 
-void render_shoot_for_entity(playspace_manager& play, sf::RenderTarget& win, entity_object& entity, item& with)
+void render_shoot_for_entity(playspace_manager& play, render_window& win, entity_object& entity, item& with)
 {
     float shoot_distance = 1;
 
@@ -869,12 +896,12 @@ void render_shoot_for_entity(playspace_manager& play, sf::RenderTarget& win, ent
     render_arbitrary_accessibility(play, win, shoot_distance, accessible, entity.tilemap_pos, {0.8, 0.3,0.3, 1});
 }
 
-void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
+void playspace_manager::draw(render_window& win, vec2f mpos)
 {
     std::vector<sf::Vertex> vertices;
     vertices.reserve(level_size.y() * level_size.x() * 6);
 
-    vec2f window_half_dim = {win.getSize().x/2, win.getSize().y/2};
+    vec2f window_half_dim = screen_dimensions/2.f;
 
     vec2f tl_visible = camera_pos - window_half_dim;
     vec2f br_visible = camera_pos + window_half_dim;
@@ -890,7 +917,7 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
     y_start = clamp(y_start, 0, level_size.y());
     y_end = clamp(y_end, 0, level_size.y());
 
-    auto mouse_tile_opt = screen_to_tile(mpos, {win.getSize().x, win.getSize().y});
+    auto mouse_tile_opt = screen_to_tile(mpos, screen_dimensions);
 
     for(int y=y_start; y < level_size.y() && y < y_end; y++)
     {
@@ -963,11 +990,10 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
 
                 float shade = 0.05;
 
-                ///this is wrong because its not handling alpha correctly
-                vec4f tl_col = lin_to_srgb_approx(clamp(base_colour*(1 + shade) * brightness, 0, 1));
-                vec4f tr_col = lin_to_srgb_approx(base_colour * brightness);
-                vec4f br_col = lin_to_srgb_approx(clamp(base_colour*(1 - shade) * brightness, 0, 1));
-                vec4f bl_col = lin_to_srgb_approx(base_colour * brightness);
+                vec4f tl_col = clamp(base_colour*(1 + shade) * brightness, 0, 1);
+                vec4f tr_col = base_colour * brightness;
+                vec4f br_col = clamp(base_colour*(1 - shade) * brightness, 0, 1);
+                vec4f bl_col = base_colour * brightness;
 
                 sf::Color sfcol_tl(tl_col.x() * 255, tl_col.y() * 255, tl_col.z() * 255, tl_col.w() * 255);
                 sf::Color sfcol_tr(tr_col.x() * 255, tr_col.y() * 255, tr_col.z() * 255, tr_col.w() * 255);
@@ -991,7 +1017,7 @@ void playspace_manager::draw(sf::RenderTarget& win, vec2f mpos)
         states.blendMode = sf::BlendAlpha;
         states.texture = &spritemap;
 
-        win.draw(&vertices[0], vertices.size(), sf::PrimitiveType::Triangles, states);
+        win.draw(vertices, sf::PrimitiveType::Triangles, states);
     }
 
     if(selected_tile.has_value() && !playing_move.has_value())

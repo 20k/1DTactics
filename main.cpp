@@ -11,8 +11,8 @@
 #include <SFML/Graphics.hpp>
 #include "renderables.hpp"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <glfw/glfw3native.h>
+//#define GLFW_EXPOSE_NATIVE_WIN32
+//#include <glfw/glfw3native.h>
 
 void glfw_error_callback(int error, const char* description)
 {
@@ -106,7 +106,7 @@ int main(int argc, char* argv[])
 
     printf("Init ogl\n");
 
-    #ifdef GLFW_EXPOSE_NATIVE_WIN32
+    /*#ifdef GLFW_EXPOSE_NATIVE_WIN32
     auto native_handle = glfwGetWin32Window(window);
     #endif // GLFW_EXPOSE_NATIVE_WIN32
 
@@ -120,22 +120,28 @@ int main(int argc, char* argv[])
 
     #ifdef GLFW_EXPOSE_NATIVE_WAYLAND
     static_assert(false);
-    #endif // GLFW_EXPOSE_NATIVE_WAYLAND
+    #endif // GLFW_EXPOSE_NATIVE_WAYLAND*/
 
     //glfwMakeContextCurrent(nullptr);
 
-    sf::ContextSettings sett(24, 8, 0, 3, 0, 0, false);
+    //sf::ContextSettings sett(24, 8, 0, 3, 0, 0, false);
 
-    sf::RenderWindow win(native_handle, sett);
+    /*sf::RenderWindow win(native_handle, sett);
     win.setActive(true);
-    win.setVerticalSyncEnabled(true);
+    win.setVerticalSyncEnabled(true);*/
+
+    render_window win;
+
+    int display_w, display_h;
+
+    glfwGetFramebufferSize(window, &display_w, &display_h);
 
     playspace_manager level;
-    level.screen_dimensions = {win.getSize().x/2, win.getSize().y/2};
+    level.screen_dimensions = {display_w, display_h};
     level.create_level({1000, 1000}, level_info::GRASS);
-    level.camera_pos = {win.getSize().x/2, win.getSize().y/2};
+    level.camera_pos = {display_w/2, display_h/2};
 
-    win.setActive(false);
+    //win.setActive(false);
     glfwMakeContextCurrent(window);
 
     bool running = true;
@@ -144,7 +150,6 @@ int main(int argc, char* argv[])
     {
         glfwPollEvents();
 
-        int display_w, display_h;
         glfwGetFramebufferSize(window, &display_w, &display_h);
 
         level.screen_dimensions = {display_w, display_h};
@@ -176,7 +181,7 @@ int main(int argc, char* argv[])
         level.tick(mpos, {display_w, display_h}, ImGui::GetIO().DeltaTime);
 
         {
-            glfwMakeContextCurrent(nullptr);
+            /*glfwMakeContextCurrent(nullptr);
             win.setActive(true);
             win.resetGLStates();
 
@@ -186,7 +191,7 @@ int main(int argc, char* argv[])
                 win.setVerticalSyncEnabled(true);
             }
 
-            win.clear();
+            win.clear();*/
             level.draw(win, mpos);
         }
 
@@ -202,8 +207,8 @@ int main(int argc, char* argv[])
 
         ImGui::Render();
 
-        glFinish();
-        win.setActive(false);
+        /*glFinish();
+        win.setActive(false);*/
         glfwMakeContextCurrent(window);
 
         glViewport(0, 0, display_w, display_h);
@@ -219,7 +224,7 @@ int main(int argc, char* argv[])
             glfwMakeContextCurrent(backup_current_context);
         }
 
-        glFinish();
+        /*glFinish();
 
         glfwMakeContextCurrent(nullptr);
         win.setActive(true);
@@ -228,8 +233,9 @@ int main(int argc, char* argv[])
         win.display();
 
         win.setActive(false);
+        glfwMakeContextCurrent(window);*/
         glfwMakeContextCurrent(window);
-        //glfwSwapBuffers(window);
+        glfwSwapBuffers(window);
     }
 
     return 0;

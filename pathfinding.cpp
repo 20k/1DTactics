@@ -47,7 +47,15 @@ float dijkstras_info::get_path_cost_to(vec2i finish)
 
     int dim = max_pos.x() - min_pos.x();
 
-    return path_costs[local_pos.y() * dim + local_pos.x()].second;
+    return path_costs.at(local_pos.y() * dim + local_pos.x()).second;
+
+    /*for(auto& i : path_costs)
+    {
+        if(i.first == finish)
+            return i.second;
+    }
+
+    return FLT_MAX;*/
 }
 
 template<typename T>
