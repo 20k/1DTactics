@@ -1022,12 +1022,6 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
         win.draw(vertices, sf::PrimitiveType::Triangles, &spritemap_tex);
     }
 
-    ///think its context stuff again screwing me
-
-    ImGui::Image((void*)spritemap_tex.tex_handle, {800, 800}, {0,0}, {1,1});
-
-    //ImGui::GetWindowDrawList()->AddImage();
-
     if(selected_tile.has_value() && !playing_move.has_value())
     {
         for(tile_object& tile : all_tiles.at(selected_tile.value().y() * level_size.x() + selected_tile.value().x()))
