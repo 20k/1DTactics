@@ -605,7 +605,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
                 if(val.type == unit_command::MOVE)
                 {
                     float move_distance = obj.model.get_move_distance();
-                    dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, move_distance);
+                    dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, move_distance * obj.model.ap_model.current);
                     float path_cost = inf.get_path_cost_to(mpos_opt.value());
 
                     int ap_cost = 0;
@@ -617,7 +617,7 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
                         std::cout <<" PATH COST " << path_cost <<"  MOVE DIST " << move_distance << std::endl;
 
-                        ap_cost = ceil(path_cost / move_distance);
+                        ap_cost = clamp(ceil(path_cost / move_distance), 0, INT_MAX);
 
                         std::cout << "AP COST " << ap_cost << std::endl;
                     }
