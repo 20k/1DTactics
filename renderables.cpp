@@ -505,6 +505,29 @@ void render_entity_ui(playspace_manager& play, entity_object& eobj)
     }
 }
 
+int get_ap_cost_to_move(playspace_manager& play, entity_object& eobj, vec2i destination)
+{
+    float move_distance = eobj.model.get_move_distance();
+    dijkstras_info inf = dijkstras(play, eobj.tilemap_pos, move_distance * eobj.model.ap_model.current);
+    float path_cost = inf.get_path_cost_to(destination);
+
+    int ap_cost = 0;
+
+    if(move_distance > 0)
+    {
+        assert(path_cost >= 0);
+        assert(move_distance > 0);
+
+        std::cout <<" PATH COST " << path_cost <<"  MOVE DIST " << move_distance << std::endl;
+
+        ap_cost = clamp(ceil(path_cost / move_distance), 0, INT_MAX);
+
+        std::cout << "AP COST " << ap_cost << std::endl;
+    }
+
+    return ap_cost;
+}
+
 void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 {
     vec2f dir;
@@ -604,23 +627,8 @@ void playspace_manager::tick(vec2f mpos, vec2f screen_dimensions, double dt_s)
 
                 if(val.type == unit_command::MOVE)
                 {
-                    float move_distance = obj.model.get_move_distance();
-                    dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, move_distance * obj.model.ap_model.current);
-                    float path_cost = inf.get_path_cost_to(mpos_opt.value());
-
-                    int ap_cost = 0;
-
-                    if(move_distance > 0)
-                    {
-                        assert(path_cost >= 0);
-                        assert(move_distance > 0);
-
-                        std::cout <<" PATH COST " << path_cost <<"  MOVE DIST " << move_distance << std::endl;
-
-                        ap_cost = clamp(ceil(path_cost / move_distance), 0, INT_MAX);
-
-                        std::cout << "AP COST " << ap_cost << std::endl;
-                    }
+                    int ap_cost = get_ap_cost_to_move(*this, obj, mpos_opt.value());
+                    dijkstras_info inf = dijkstras(*this, obj.tilemap_pos, obj.model.get_move_distance() * obj.model.ap_model.current);
 
                     if(ap_cost <= obj.model.ap_model.current)
                     {
@@ -844,16 +852,34 @@ void render_arbitrary_accessibility(playspace_manager& play, render_window& win,
     }
 }
 
-void render_move_for_entity(playspace_manager& play, render_window& win, entity_object& entity)
+void render_move_for_entity(playspace_manager& play, render_window& win, entity_object& entity, vec2f absolute_mouse_pos)
 {
     int ap_usage = entity.model.ap_model.current;
 
-    std::array<vec4f, 3> cols =
+    /*std::array<vec4f, 3> cols =
     {
         (vec4f){0.47, 0.47, 0.666, 1},
         (vec4f){1, 0.7, 0.3, 1},
         (vec4f){0.3, 1, 0.3, 1},
+    };*/
+
+    std::array<vec4f, 3> cols =
+    {
+        (vec4f){0.47, 0.47, 0.47, 1},
+        (vec4f){0.47, 0.47, 0.47, 1},
+        (vec4f){0.47, 0.47, 0.47, 1},
     };
+
+    int destination_ap_cost = 0;
+
+    auto mouse_tile_opt = play.screen_to_tile(absolute_mouse_pos, play.screen_dimensions);
+
+    if(mouse_tile_opt.has_value())
+    {
+        //auto dijk_to_mouse = entity.model.get_dijkstras_for_ap_move(play, entity.tilemap_pos, ap_usage);
+        vec2i mouse_tile = mouse_tile_opt.value();
+        destination_ap_cost = get_ap_cost_to_move(play, entity, mouse_tile);
+    }
 
     ///render closer aps last
     for(int i=ap_usage; i >= 1; i--)
@@ -867,10 +893,13 @@ void render_move_for_entity(playspace_manager& play, render_window& win, entity_
             return all_info.get_path_cost_to(pos) <= entity_move_distance;
         };
 
-        vec4f col = {1,1,1,1};
+        vec4f col = {0.47, 0.47, 0.47,1};
 
         if(i - 1 < (int)cols.size())
             col = cols[i - 1];
+
+        if(i != destination_ap_cost)
+            col = col / 1.5f;
 
         render_arbitrary_accessibility(play, win, entity_move_distance, accessible, entity.tilemap_pos, col);
     }
@@ -1047,7 +1076,8 @@ void playspace_manager::draw(render_window& win, vec2f mpos)
             if(!is_unit_hostile(entity) && in_hostile_turn)
                 continue;
 
-            render_move_for_entity(*this, win, entity);
+            if(player_building_move.has_value() && player_building_move.value().type == unit_command::MOVE)
+                render_move_for_entity(*this, win, entity, mpos);
 
             if(player_building_move.has_value() && player_building_move.value().type == unit_command::SHOOT)
             {
