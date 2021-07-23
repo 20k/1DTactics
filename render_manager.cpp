@@ -1,12 +1,12 @@
 #include <gl/glew.h>
-#include "render_window.hpp"
+#include "render_manager.hpp"
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-void render_window::draw(const std::vector<vertex>& vertices, sf::PrimitiveType type, texture* tex)
+void render_manager::draw(const std::vector<vertex>& vertices, sf::PrimitiveType type, texture* tex)
 {
     ImDrawList* idl = ImGui::GetBackgroundDrawList(ImGui::GetMainViewport());
 
@@ -49,7 +49,7 @@ void render_window::draw(const std::vector<vertex>& vertices, sf::PrimitiveType 
     idl->PopTextureID();
 }
 
-void render_window::draw(const sf::Shape& shape)
+void render_manager::draw(const sf::Shape& shape)
 {
     int vcount = shape.getPointCount();
 

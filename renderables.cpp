@@ -791,7 +791,7 @@ void playspace_manager::next_turn()
 }
 
 template<typename T>
-void render_arbitrary_accessibility(playspace_manager& play, render_window& win, float max_distance, T accessible, vec2i centre, vec4f lin_col)
+void render_arbitrary_accessibility(playspace_manager& play, render_manager& win, float max_distance, T accessible, vec2i centre, vec4f lin_col)
 {
     vec4f srgb_col = {0,0,0,0};
 
@@ -852,7 +852,7 @@ void render_arbitrary_accessibility(playspace_manager& play, render_window& win,
     }
 }
 
-void render_move_for_entity(playspace_manager& play, render_window& win, entity_object& entity, vec2f absolute_mouse_pos)
+void render_move_for_entity(playspace_manager& play, render_manager& win, entity_object& entity, vec2f absolute_mouse_pos)
 {
     int ap_usage = entity.model.ap_model.current;
 
@@ -906,7 +906,7 @@ void render_move_for_entity(playspace_manager& play, render_window& win, entity_
 
 }
 
-void render_shoot_for_entity(playspace_manager& play, render_window& win, entity_object& entity, item& with)
+void render_shoot_for_entity(playspace_manager& play, render_manager& win, entity_object& entity, item& with)
 {
     float shoot_distance = 1;
 
@@ -925,7 +925,7 @@ void render_shoot_for_entity(playspace_manager& play, render_window& win, entity
     render_arbitrary_accessibility(play, win, shoot_distance, accessible, entity.tilemap_pos, {0.8, 0.3,0.3, 1});
 }
 
-void playspace_manager::draw(render_window& win, vec2f mpos)
+void playspace_manager::draw(render_manager& win, vec2f mpos)
 {
     std::vector<vertex> vertices;
     vertices.reserve(level_size.y() * level_size.x() * 6);

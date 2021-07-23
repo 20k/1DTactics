@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
     win.setActive(true);
     win.setVerticalSyncEnabled(true);*/
 
-    render_window win;
+    render_manager win;
 
     int display_w = 0;
     int display_h = 0;

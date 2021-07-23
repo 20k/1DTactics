@@ -1,5 +1,5 @@
-#ifndef RENDER_WINDOW_HPP_INCLUDED
-#define RENDER_WINDOW_HPP_INCLUDED
+#ifndef RENDER_MANAGER_HPP_INCLUDED
+#define RENDER_MANAGER_HPP_INCLUDED
 
 #include <SFML/Graphics.hpp>
 #include <vector>
@@ -22,10 +22,10 @@ struct texture
     void load_from_image(const sf::Image& image);
 };
 
-struct render_window
+struct render_manager
 {
     void draw(const std::vector<vertex>& vertices, sf::PrimitiveType type, texture* tex = nullptr);
     void draw(const sf::Shape& shape);
 };
 
-#endif // RENDER_WINDOW_HPP_INCLUDED
+#endif // RENDER_MANAGER_HPP_INCLUDED
